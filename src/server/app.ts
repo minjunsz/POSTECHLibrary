@@ -1,7 +1,6 @@
 import express from "express";
-import badyParser from "body-parser";
-import { Controller } from "./controller/main.controller";
 import bodyParser from "body-parser";
+import { Controller } from "./controller/main.controller";
 
 class App {
   public app: express.Application;
