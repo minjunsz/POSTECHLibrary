@@ -11,10 +11,22 @@
     "url": "git+https://github.com/minjunsz/POSTECHLibrary.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "minjunsz",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/minjunsz/POSTECHLibrary/issues"
   },
-  "homepage": "https://github.com/minjunsz/POSTECHLibrary#readme"
+  "homepage": "https://github.com/minjunsz/POSTECHLibrary#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.0",
+    "@types/express": "^4.17.3",
+    "@types/node": "^13.9.2",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.7.0",
+    "typescript": "^3.8.3"
+  }
 }
