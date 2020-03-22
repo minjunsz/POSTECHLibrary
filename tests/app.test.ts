@@ -15,9 +15,15 @@ describe("Test the root path", () => {
     server.close();
   });
 
-  test("It should response the GET method", async done => {
+  test("root GET", async done => {
     const response = await request(app).get("/");
     expect(response.status).toBe(200);
+    expect(response.text).toMatch("Hello, World!");
+    done();
+  });
+  test("wrong url GET", async done => {
+    const response = await request(app).get("/wrong-url");
+    expect(response.status).toBe(404);
     done();
   });
 });
