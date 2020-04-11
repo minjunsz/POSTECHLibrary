@@ -1,0 +1,51 @@
+[
+   {
+      "name": "librarydb",
+      "type": "mysql",
+      "host": "db",
+      "username": "root",
+      "password": "1234",
+      "database": "librarydb",
+      "synchronize": false,
+      "logging": false,
+      "entities": [
+         "src/entity/**/*.ts"
+      ],
+      "migrations": [
+         "src/migration/**/*.ts"
+      ],
+      "subscribers": [
+         "src/subscriber/**/*.ts"
+      ],
+      "cli": {
+         "entitiesDir": "src/entity",
+         "migrationsDir": "src/migration",
+         "subscribersDir": "src/subscriber"
+      }
+   },
+   {
+      "name": "testdb",
+      "type": "mysql",
+      "host": "db",
+      "username": "root",
+      "password": "1234",
+      "database": "testdb",
+      "synchronize": false,
+      "logging": false,
+      "dropSchema": true,
+      "entities": [
+         "src/entity/**/*.ts"
+      ],
+      "migrations": [
+         "src/migration/**/*.ts"
+      ],
+      "subscribers": [
+         "src/subscriber/**/*.ts"
+      ],
+      "cli": {
+         "entitiesDir": "src/entity",
+         "migrationsDir": "src/migration",
+         "subscribersDir": "src/subscriber"
+      }
+   }
+]
