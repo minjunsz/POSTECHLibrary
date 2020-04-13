@@ -21,7 +21,6 @@ export class Seat extends BaseEntity {
     @Column()
     seatNumber: string;
 
-    //@Field()
     @Column()
     seatPassword: string;
 

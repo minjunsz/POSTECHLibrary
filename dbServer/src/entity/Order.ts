@@ -17,7 +17,6 @@ export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  //@Field()
   @Column()
   password: string;
 

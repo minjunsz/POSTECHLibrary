@@ -3,18 +3,17 @@ import { createConnection } from "typeorm";
 import { ApolloServer } from "apollo-server-express";
 import app from "./app";
 import { PORT } from "./constants";
-import { buildSchema } from "type-graphql";
-import { OrderResolver } from "./resolvers/order.resolver";
+import { createShema } from "../../utils/createSchema";
 
 (async () => {
-  await createConnection("librarydb").then(async () => {
+  await createConnection().then(async () => {
     console.log("Inserting a new user into the database...");
   }).catch(error => console.log("connection error: " + error));
 
+  const schema = await createShema();
+
   const apolloServer = new ApolloServer({
-    schema: await buildSchema({
-      resolvers: [ OrderResolver ]
-    }),
+    schema,
     context: ({ req, res }) => ({ req, res }),
   });
 

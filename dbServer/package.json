@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon",
-    "test": "npm run db:setup && jest --detectOpenHandles --forceExit",
+    "test": "npm run db:setup && jest --detectOpenHandles",
     "db:setup": "ts-node ./tests/test-utils/setup.ts"
   },
   "repository": {
