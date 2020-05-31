@@ -2,14 +2,16 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    OneToMany,
+    BaseEntity,
+    OneToOne,
  } from "typeorm";
 import { ObjectType, Field, Int } from "type-graphql";
 import { Order } from "./Order";
+import { SeatCondition } from "./SeatCondition";
 
 @ObjectType()
 @Entity()
-export class Seat {
+export class Seat extends BaseEntity {
 
     @Field(() => Int)
     @PrimaryGeneratedColumn()
@@ -19,10 +21,12 @@ export class Seat {
     @Column()
     seatNumber: string;
 
-    @Field()
     @Column()
     seatPassword: string;
 
-    @OneToMany(() => Order, order => order.seat)
-    orders: [Order];
+    @OneToOne(() => Order, order => order.seat)
+    order: Order;
+
+    @OneToOne(() => SeatCondition, seatCondition => seatCondition.seat)
+    seatCondition: SeatCondition;
 }

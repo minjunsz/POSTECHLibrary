@@ -5,8 +5,8 @@ import { Server } from "http";
 describe("Test the root path", () => {
   let server: Server;
   beforeAll(async () => {
-    server = await app.listen(3000, () =>
-      console.log(`Listening on port ${3000}`)
+    server = await app.listen(8000, () =>
+      console.log(`Listening on port ${8000}`)
     );
   });
 

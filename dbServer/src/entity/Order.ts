@@ -2,20 +2,21 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  BaseEntity,
+  JoinColumn,
+  OneToOne,
 } from "typeorm";
 import { ObjectType, Field, Int } from "type-graphql";
 import { Seat } from "./Seat";
 
 @ObjectType()
 @Entity()
-export class Order {
+export class Order extends BaseEntity {
 
   @Field(() => Int)
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
   @Column()
   password: string;
 
@@ -28,9 +29,11 @@ export class Order {
   endAt: Date;
 
   @Field(() => Int, { nullable: true })
+  @Column({ type: "int" , default: null, nullable: true })
   seatId: number;
 
-  @ManyToOne(() => Seat, seat => seat.orders)
+  @OneToOne(() => Seat, seat => seat.order)
+  @JoinColumn({ name: "seatId" })
   seat: Seat;
 
 }
