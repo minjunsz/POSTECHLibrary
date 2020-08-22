@@ -1,4 +1,4 @@
-import { Resolver, InputType, Field, Arg, Mutation } from "type-graphql";
+import { Resolver, InputType, Field, Arg, Mutation, Query } from "type-graphql";
 import { Seat } from "../../entity/Seat";
 import { getConnection } from "typeorm";
 import { encrypt } from "../../../utils/password";
@@ -14,6 +14,11 @@ class SeatInput {
 
 @Resolver()
 export class SeatResolver {
+  @Query(() => [Seat])
+  async seats(): Promise<Seat[]> {
+    return Seat.find();
+  }
+
   @Mutation(() => Seat)
   async createSeat(@Arg('args') args: SeatInput) {
     const alreadyExistedSeat = await Seat.findOne({
