@@ -1,4 +1,4 @@
-import { Resolver, InputType, Field, Arg, Query, Mutation } from "type-graphql";
+import { Resolver, InputType, Field, Arg, Query, Mutation, ObjectType } from "type-graphql";
 import { Order } from "../../entity/Order";
 import { Seat } from "../../entity/Seat";
 import { encrypt, compare } from "../../../utils/password";
@@ -35,6 +35,23 @@ export class CreateOrderInput {
   endAt: Date;
 };
 
+@ObjectType()
+class FieldError {
+  @Field()
+  field: string;
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+class OrderResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[]
+
+  @Field(() => Order, { nullable: true })
+  order?: Order
+}
+
 @Resolver()
 export class OrderResolver {
   @Query(() => Order)
@@ -49,28 +66,58 @@ export class OrderResolver {
     return order;
   }
 
-  @Mutation(() => Order)
-  async createOrder(@Arg('args') args: CreateOrderInput) {
-    if (moment(args.startAt).isBefore(moment()))
-      return new Error('Invalid startAt.');
-    if (moment(args.endAt).isSameOrBefore(args.startAt))
-      return new Error('Invalid endAt.');
+  @Mutation(() => OrderResponse)
+  async createOrder(@Arg('args') args: CreateOrderInput): Promise<OrderResponse> {
+    if (moment(args.startAt).isBefore(moment())) {
+      return {
+        errors: [{
+          field: "startAt",
+          message: "Invalid start time."
+        }]
+      };
+    }
+    if (moment(args.endAt).isSameOrBefore(args.startAt)) {
+      return {
+        errors: [{
+          field: "endAt",
+          message: "Invalid end time."
+        }]
+      };
+    }
 
     const seat = await Seat.findOne({
       seatNumber: args.seatNumber,
     });
 
-    if (!seat)
-      return new Error('No such seat data.');
-    if (!compare(seat.seatPassword, args.seatPassword))
-      return new Error('Invalid seat password.');
+    if (!seat) {
+      return {
+        errors: [{
+          field: "seatNumber",
+          message: "No such seat data."
+        }]
+      };
+    }
+    if (!compare(seat.seatPassword, args.seatPassword)) {
+      return {
+        errors: [{
+          field: "seatPassword",
+          message: "Invalid seat password."
+        }]
+      };
+    }
 
     const alreadyExistedOrder = await Order.findOne({
       seatId: seat.id,
     });
 
-    if (alreadyExistedOrder)
-    return new Error('Currently in use.');
+    if (alreadyExistedOrder) {
+      return {
+        errors: [{
+          field: "seatNumber",
+          message: "Currently in use."
+        }]
+      };
+    }
 
     const orderResult = await getConnection()
       .createQueryBuilder()
@@ -84,28 +131,53 @@ export class OrderResolver {
       })
       .execute();
 
-    return await Order.findOne(orderResult.identifiers[0].id);
+    const order = await Order.findOne(orderResult.identifiers[0].id);
+    return { order, };
   }
 
-  @Mutation(() => Order)
-  async deleteOrder(@Arg('args') args: OrderInput) {
+  @Mutation(() => OrderResponse)
+  async deleteOrder(@Arg('args') args: OrderInput): Promise<OrderResponse> {
     const seat = await Seat.findOne({
       seatNumber: args.seatNumber,
     });
 
-    if (!seat)
-      return new Error('No such seat data.');
-    if (!await compare(seat.seatPassword, args.seatPassword))
-      return new Error('Invalid seat password.');
+    if (!seat) {
+      return {
+        errors: [{
+          field: "seatNumber",
+          message: "No such seat data."
+        }]
+      };
+    }
+    if (!await compare(seat.seatPassword, args.seatPassword)) {
+      return {
+        errors: [{
+          field: "seatPassword",
+          message: "Invalid seat password."
+        }]
+      };
+    }
 
     const order = await Order.findOne({
       seatId: seat.id,
     });
 
-    if (!order)
-      return new Error('No such order.');
-    if (!await compare(order.password, args.password))
-      return new Error('Invalid password.');
+    if (!order) {
+      return {
+        errors: [{
+          field: "seatNumber",
+          message: "No such order."
+        }]
+      };
+    }
+    if (!await compare(order.password, args.password)) {
+      return {
+        errors: [{
+          field: "password",
+          message: "Password mismatch."
+        }]
+      };
+    }
 
     await getConnection()
       .createQueryBuilder()
@@ -114,6 +186,6 @@ export class OrderResolver {
       .where(`id = ${order.id}`)
       .execute();
 
-    return order;
+    return { order };
   }
 }
