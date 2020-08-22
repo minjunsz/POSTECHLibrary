@@ -29,6 +29,9 @@ services:
           )
     ports:
       - 8000:8000
+    links:
+      - redis
+      - db
   
   db:
     image: mysql
@@ -40,6 +43,12 @@ services:
       - ./db/mysql-init-files:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
-    expose:
-      # Opens port 3306 on the container
-      - "3306"
+    links:
+      - redis
+
+  redis:
+    image: redis
+    command: redis-server --requirepass 1234 --port 6379
+    restart: always
+    ports:
+      - 6379:6379

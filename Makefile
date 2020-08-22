@@ -5,8 +5,10 @@ up-server:
 	docker-compose up -d --force-recreate server
 up-db:
 	docker-compose up -d --force-recreate db
+up-redis:
+	docker-compose up -d --force-recreate redis
 
-up: up-server up-db
+up: up-db up-redis up-server
 
 
 # show logs in the container
@@ -28,6 +30,8 @@ into-server:
 	docker-compose exec server bash
 into-db:
 	docker-compose exec db bash
+into-redis:
+	docker-compose exec redis bash
 
 # files created by docker container are belong to root user
 # we have to unrootify in order to make it writable
