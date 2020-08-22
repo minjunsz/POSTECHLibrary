@@ -1,9 +1,10 @@
-import { Resolver, InputType, Field, Arg, Query, Mutation, ObjectType } from "type-graphql";
+import { Resolver, InputType, Field, Arg, Mutation, ObjectType, Ctx, Query } from "type-graphql";
 import { Order } from "../../entity/Order";
 import { Seat } from "../../entity/Seat";
 import { encrypt, compare } from "../../../utils/password";
 import { getConnection } from "typeorm";
 import moment from "moment";
+import { MyContext } from "../types";
 
 @InputType()
 export class OrderInput {
@@ -54,20 +55,74 @@ class OrderResponse {
 
 @Resolver()
 export class OrderResolver {
-  @Query(() => Order)
-  async login(@Arg('args') args: OrderInput) {
-    console.log(args);
-    const order: Order = new Order();
-    order.startAt = new Date('2020-04-10 10:00:00');
-    order.endAt = new Date('2020-04-10 12:00:00');
-    order.seatId = 1;
-    order.id = 1;
-
-    return order;
+  @Query(() => Order, { nullable: true })
+  me(
+    @Ctx() { req }: MyContext
+  ) {
+    if (!req.session.orderId) { //not logged in
+      return null;
+    }
+    const user = Order.findOne(req.session.orderId);
+    return user;
   }
 
   @Mutation(() => OrderResponse)
-  async createOrder(@Arg('args') args: CreateOrderInput): Promise<OrderResponse> {
+  async login(
+    @Arg('args') args: OrderInput,
+    @Ctx() { req }: MyContext
+  ): Promise<OrderResponse> {
+    const seat = await Seat.findOne({
+      seatNumber: args.seatNumber,
+    });
+
+    if (!seat) {
+      return {
+        errors: [{
+          field: "seatNumber",
+          message: "No such seat data."
+        }]
+      };
+    }
+    if (!await compare(seat.seatPassword, args.seatPassword)) {
+      return {
+        errors: [{
+          field: "seatPassword",
+          message: "Invalid seat password."
+        }]
+      };
+    }
+
+    const order = await Order.findOne({
+      seatId: seat.id,
+    });
+
+    if (!order) {
+      return {
+        errors: [{
+          field: "seatNumber",
+          message: "No such order."
+        }]
+      };
+    }
+    if (!await compare(order.password, args.password)) {
+      return {
+        errors: [{
+          field: "password",
+          message: "Password mismatch."
+        }]
+      };
+    }
+
+    req.session.orderId = order.id;
+
+    return { order };
+  }
+
+  @Mutation(() => OrderResponse)
+  async createOrder(
+    @Arg('args') args: CreateOrderInput,
+    @Ctx() { req }: MyContext
+  ): Promise<OrderResponse> {
     if (moment(args.startAt).isBefore(moment())) {
       return {
         errors: [{
@@ -132,7 +187,18 @@ export class OrderResolver {
       .execute();
 
     const order = await Order.findOne(orderResult.identifiers[0].id);
-    return { order, };
+
+    if (!order) {
+      return {
+        errors: [{
+          field: "ServerError",
+          message: "Unexpectedly failed to create order."
+        }]
+      };
+    } else {
+      req.session.orderId = order.id;
+      return { order, };
+    }
   }
 
   @Mutation(() => OrderResponse)
