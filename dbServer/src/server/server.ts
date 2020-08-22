@@ -5,6 +5,10 @@ import app from "./app";
 import { PORT } from "./constants";
 import { createShema } from "../../utils/createSchema";
 
+import moment from "moment"
+import "moment-timezone"
+moment.tz.setDefault("Asia/Seoul");
+
 (async () => {
   await createConnection().then(async () => {
     console.log("Inserting a new user into the database...");
@@ -20,7 +24,7 @@ import { createShema } from "../../utils/createSchema";
   apolloServer.applyMiddleware({
     app,
     cors: false,
-   });
+  });
 
   app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 })();
