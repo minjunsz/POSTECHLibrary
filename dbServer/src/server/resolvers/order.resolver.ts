@@ -97,7 +97,7 @@ export class OrderResolver {
         }]
       };
     }
-    if (!compare(seat.seatPassword, args.seatPassword)) {
+    if (!await compare(seat.seatPassword, args.seatPassword)) {
       return {
         errors: [{
           field: "seatPassword",
