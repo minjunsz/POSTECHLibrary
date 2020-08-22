@@ -1,0 +1,45 @@
+version: "3.7"
+services:
+  # app:
+  #   image: node
+  #   volumes:
+  #     - "./app:/mnt/app"
+  #   working_dir: "/mnt/app"
+  #   entrypoint: "/bin/bash -c"
+  #   command:
+  #     - |
+  #       CI=true npm start || (\
+  #         echo '`npm start` failed, but the container is running' && \
+  #         tail -f /dev/null \
+  #         )
+  #   ports:
+  #     - 3000:3000
+
+  server:
+    image: node
+    volumes:
+      - "./dbServer:/mnt/dbServer"
+    working_dir: "/mnt/dbServer"
+    entrypoint: "/bin/bash -c"
+    command:
+      - |
+        npm start || (\
+          echo '`npm start` failed, but the container is running' && \
+          tail -f /dev/null \
+          )
+    ports:
+      - 8000:8000
+  
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    volumes:
+      - ./db/mysql-init-files:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    expose:
+      # Opens port 3306 on the container
+      - "3306"
