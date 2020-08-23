@@ -1,12 +1,43 @@
 import React from "react";
 import { Formik, Form } from "formik";
 import { FormControl, FormErrorMessage, FormLabel, Input, Box, Button } from "@chakra-ui/core";
+import { useMutation } from "urql";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
 
 interface registerProps { }
 
+const REGISTER_MUTATION = `
+mutation CreateOrder(
+  $seatNumber: String!
+  $seatPassword: String!
+  $password: String!
+  $startAt: DateTime!
+  $endAt: DateTime!
+){
+  createOrder(args:{
+    seatNumber: $seatNumber
+    seatPassword: $seatPassword
+    password: $password
+    startAt: $startAt
+    endAt: $endAt
+  }) {
+    errors {
+      field
+      message
+    }
+    order {
+      id
+      startAt
+      endAt
+      seatId
+    }
+  }
+}
+`
+
 const Register: React.FC<registerProps> = ({ }) => {
+  const [, register] = useMutation(REGISTER_MUTATION);
   return (
     <Wrapper variant="small">
       <Formik
@@ -18,7 +49,11 @@ const Register: React.FC<registerProps> = ({ }) => {
           endAt: "2020-08-24T12:38:24.791Z"
         }}
         onSubmit={(values) => {
-          console.log(values);
+          return register({
+            ...values,
+            startAt: "2020-08-25T12:38:24.791Z",
+            endAt: new Date('October 26, 2020 00:00:00')
+          });
         }}
       >
         {({ isSubmitting }) => (
