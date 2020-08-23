@@ -5,10 +5,7 @@ mutation CreateOrder($args: CreateOrderInput!){
       message
     }
     order {
-      id
-      startAt
-      endAt
-      seatId
+      ...RegularOrder
     }
   }
 }

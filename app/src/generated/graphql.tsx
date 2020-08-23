@@ -109,6 +109,11 @@ export enum Status {
   Unsanitary = 'UNSANITARY'
 }
 
+export type RegularOrderFragment = (
+  { __typename?: 'Order' }
+  & Pick<Order, 'id' | 'startAt' | 'endAt' | 'seatId'>
+);
+
 export type LoginMutationVariables = Exact<{
   args: OrderInput;
 }>;
@@ -123,7 +128,7 @@ export type LoginMutation = (
       & Pick<FieldError, 'field' | 'message'>
     )>>, order?: Maybe<(
       { __typename?: 'Order' }
-      & Pick<Order, 'id' | 'seatId'>
+      & RegularOrderFragment
     )> }
   ) }
 );
@@ -142,12 +147,30 @@ export type CreateOrderMutation = (
       & Pick<FieldError, 'field' | 'message'>
     )>>, order?: Maybe<(
       { __typename?: 'Order' }
-      & Pick<Order, 'id' | 'startAt' | 'endAt' | 'seatId'>
+      & RegularOrderFragment
     )> }
   ) }
 );
 
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
+
+export type MeQuery = (
+  { __typename?: 'Query' }
+  & { me?: Maybe<(
+    { __typename?: 'Order' }
+    & RegularOrderFragment
+  )> }
+);
+
+export const RegularOrderFragmentDoc = gql`
+    fragment RegularOrder on Order {
+  id
+  startAt
+  endAt
+  seatId
+}
+    `;
 export const LoginDocument = gql`
     mutation Login($args: OrderInput!) {
   login(args: $args) {
@@ -156,12 +179,11 @@ export const LoginDocument = gql`
       message
     }
     order {
-      id
-      seatId
+      ...RegularOrder
     }
   }
 }
-    `;
+    ${RegularOrderFragmentDoc}`;
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
@@ -174,15 +196,23 @@ export const CreateOrderDocument = gql`
       message
     }
     order {
-      id
-      startAt
-      endAt
-      seatId
+      ...RegularOrder
     }
   }
 }
-    `;
+    ${RegularOrderFragmentDoc}`;
 
 export function useCreateOrderMutation() {
   return Urql.useMutation<CreateOrderMutation, CreateOrderMutationVariables>(CreateOrderDocument);
+};
+export const MeDocument = gql`
+    query Me {
+  me {
+    ...RegularOrder
+  }
+}
+    ${RegularOrderFragmentDoc}`;
+
+export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };

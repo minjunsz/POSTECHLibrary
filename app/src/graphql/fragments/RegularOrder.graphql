@@ -1,0 +1,6 @@
+fragment RegularOrder on Order {
+  id
+  startAt
+  endAt
+  seatId
+}
