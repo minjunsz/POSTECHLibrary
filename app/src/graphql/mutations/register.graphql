@@ -1,0 +1,14 @@
+mutation CreateOrder($args: CreateOrderInput!){
+  createOrder(args: $args) {
+    errors {
+      field
+      message
+    }
+    order {
+      id
+      startAt
+      endAt
+      seatId
+    }
+  }
+}

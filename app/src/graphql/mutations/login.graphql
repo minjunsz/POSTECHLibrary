@@ -1,0 +1,6 @@
+mutation Login($args: OrderInput!) {
+  login(args: $args){
+    errors {field message}
+    order {id seatId}
+  }
+}

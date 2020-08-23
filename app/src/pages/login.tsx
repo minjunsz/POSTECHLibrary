@@ -3,15 +3,15 @@ import { Formik, Form } from "formik";
 import { Box, Button } from "@chakra-ui/core";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
-import { useCreateOrderMutation } from '../generated/graphql';
+import { useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from "../utils/toErrorMap";
 import { useRouter } from 'next/router';
 
-interface registerProps { }
+interface loginProps { }
 
-const Register: React.FC<registerProps> = ({ }) => {
+const Login: React.FC<loginProps> = ({ }) => {
   const router = useRouter();
-  const [, register] = useCreateOrderMutation();
+  const [, register] = useLoginMutation();
   return (
     <Wrapper variant="small">
       <Formik
@@ -19,19 +19,15 @@ const Register: React.FC<registerProps> = ({ }) => {
           seatNumber: "seat3",
           seatPassword: "3333",
           password: "1234",
-          startAt: "2020-08-23T12:38:24.791Z", //TODO: implement spinner to select time
-          endAt: "2020-08-24T12:38:24.791Z"
         }}
         onSubmit={async (values, { setErrors }) => {
           const args = {
             ...values,
-            startAt: "2020-08-25T12:38:24.791Z",
-            endAt: new Date('October 26, 2020 00:00:00')
           };
           const response = await register({ args });
-          if (response.data?.createOrder.errors) {
-            setErrors(toErrorMap(response.data.createOrder.errors));
-          } else if (response.data?.createOrder.order) {
+          if (response.data?.login.errors) {
+            setErrors(toErrorMap(response.data.login.errors));
+          } else if (response.data?.login.order) {
             router.push('/');
           }
         }}
@@ -74,4 +70,4 @@ const Register: React.FC<registerProps> = ({ }) => {
   );
 };
 
-export default Register;
+export default Login;
