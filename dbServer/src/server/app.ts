@@ -4,6 +4,7 @@ import { Controller } from "./controller/main.controller";
 import redis from "redis";
 import connectRedis from "connect-redis";
 import session from "express-session";
+import cors from "cors";
 import { __prod__, REDIS_HOST, REDIS_PORT, COOKIE_NAME } from "./constants";
 
 const RedisStore = connectRedis(session);
@@ -25,6 +26,12 @@ class App {
   private SetConfig() {
     this.app.use(bodyParser.json({ limit: "50mb" }));
     this.app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+    this.app.use(
+      cors({
+        origin: "http://localhost:3000",
+        credentials: true
+      })
+    );
     this.app.use(
       session({
         name: COOKIE_NAME,
