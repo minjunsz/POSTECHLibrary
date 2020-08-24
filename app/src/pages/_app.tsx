@@ -5,7 +5,7 @@ import { cacheExchange } from '@urql/exchange-graphcache';
 import theme from '../theme'
 import { NavBar } from '../components/NavBar';
 import { betterUpdateQuery } from '../utils/cacheExchange';
-import { LoginMutation, MeQuery, MeDocument, CreateOrderMutation } from '../generated/graphql';
+import { LoginMutation, MeQuery, MeDocument, CreateOrderMutation, LogoutMutation } from '../generated/graphql';
 
 const client = createClient({
   url: "http://localhost:8000/graphql",
@@ -42,6 +42,14 @@ const client = createClient({
                   return { me: _result.createOrder.order }
                 }
               })
+          },
+          logout: (result, args, cache, info) => {
+            betterUpdateQuery<LogoutMutation, MeQuery>(
+              cache, { query: MeDocument }, result, (_result, query) => {
+                if (_result.logout) { return { me: null }; }
+                else { return query; }
+              }
+            )
           }
         }
       }

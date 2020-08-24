@@ -5,6 +5,7 @@ import { encrypt, compare } from "../../../utils/password";
 import { getConnection } from "typeorm";
 import moment from "moment";
 import { MyContext } from "../types";
+import { COOKIE_NAME } from "../constants";
 
 @InputType()
 export class OrderInput {
@@ -116,6 +117,21 @@ export class OrderResolver {
     req.session.orderId = order.id;
 
     return { order };
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: MyContext) {
+    return new Promise((resolver, _) => {
+      req.session.destroy((err) => {
+        if (err) {
+          console.log(err);
+          resolver(false);
+          return;
+        }
+        res.clearCookie(COOKIE_NAME);
+        resolver(true);
+      })
+    })
   }
 
   @Mutation(() => OrderResponse)
