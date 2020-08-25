@@ -8,7 +8,7 @@ up-db:
 up-redis:
 	docker-compose up -d --force-recreate redis
 
-up: up-db up-redis up-server up-server
+up: up-redis up-db up-server up-app
 
 
 # show logs in the container
@@ -37,3 +37,13 @@ into-redis:
 # we have to unrootify in order to make it writable
 unrootify:
 	sudo chown -R $$(id -u):$$(id -g) .
+
+rm-app:
+	docker-compose rm -sf app
+rm-server:
+	docker-compose rm -sf server
+rm-db:
+	docker-compose rm -sf db
+rm-redis:
+	docker-compose rm -sf redis
+rm-all: rm-app rm-server rm-db rm-redis
