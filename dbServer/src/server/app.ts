@@ -1,19 +1,18 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { Controller } from "./controller/main.controller";
-import redis from "redis";
+import Redis from "ioredis";
 import connectRedis from "connect-redis";
 import session from "express-session";
 import cors from "cors";
 import { __prod__, REDIS_HOST, REDIS_PORT, COOKIE_NAME } from "./constants";
 
 const RedisStore = connectRedis(session);
-const redisClient = redis.createClient({
+export const redisClient = new Redis({
   host: REDIS_HOST,
   port: REDIS_PORT,
-  auth_pass: "1234" //TODO: move password to .env file
-});
-
+  password: "1234"
+}); //TODO: move password to .env file
 class App {
   public app: express.Application;
 
