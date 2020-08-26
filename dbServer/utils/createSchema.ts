@@ -1,6 +1,7 @@
 import { buildSchema } from "type-graphql";
 import { SeatResolver } from "../src/server/resolvers/seat.resolver";
 import { OrderResolver } from "../src/server/resolvers/order.resolver";
+import { SeatConditionResolver } from "../src/server/resolvers/seatCondition.resolver";
 
 export const createShema = async () => {
   try {
@@ -8,6 +9,7 @@ export const createShema = async () => {
       resolvers: [
         SeatResolver,
         OrderResolver,
+        SeatConditionResolver
       ],
     });
   } catch (err) {
