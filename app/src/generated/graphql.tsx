@@ -172,6 +172,17 @@ export type MeQuery = (
   )> }
 );
 
+export type SeatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SeatsQuery = (
+  { __typename?: 'Query' }
+  & { seats: Array<(
+    { __typename?: 'Seat' }
+    & Pick<Seat, 'id' | 'seatNumber'>
+  )> }
+);
+
 export const RegularOrderFragmentDoc = gql`
     fragment RegularOrder on Order {
   id
@@ -233,4 +244,16 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const SeatsDocument = gql`
+    query Seats {
+  seats {
+    id
+    seatNumber
+  }
+}
+    `;
+
+export function useSeatsQuery(options: Omit<Urql.UseQueryArgs<SeatsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<SeatsQuery>({ query: SeatsDocument, ...options });
 };
