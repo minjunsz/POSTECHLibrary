@@ -17,7 +17,7 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
   let menus = null;
 
   if (fetching) {
-    menus = "loading..."
+    menus = <div>loading...</div>;
   } else if (!data?.me) {
     menus = (
       <>
