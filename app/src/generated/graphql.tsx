@@ -18,6 +18,12 @@ export type Query = {
   __typename?: 'Query';
   seats: Array<Seat>;
   me?: Maybe<Order>;
+  seatCondition: SeatConditionResponse;
+};
+
+
+export type QuerySeatConditionArgs = {
+  seatId: Scalars['Int'];
 };
 
 export type Seat = {
@@ -35,6 +41,28 @@ export type Order = {
 };
 
 
+export type SeatConditionResponse = {
+  __typename?: 'SeatConditionResponse';
+  error?: Maybe<Scalars['String']>;
+  seatCondition?: Maybe<SeatCondition>;
+};
+
+export type SeatCondition = {
+  __typename?: 'SeatCondition';
+  id: Scalars['Int'];
+  status: SeatStatus;
+  description: Scalars['String'];
+  seatId: Scalars['Int'];
+};
+
+/** Status of seat */
+export enum SeatStatus {
+  Fine = 'FINE',
+  Unavailable = 'UNAVAILABLE',
+  Uncomfortable = 'UNCOMFORTABLE',
+  Unsanitary = 'UNSANITARY'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   createSeat: Seat;
@@ -42,6 +70,7 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   createOrder: OrderResponse;
   deleteOrder: OrderResponse;
+  createSeatCondition: SeatCondition;
 };
 
 
@@ -62,6 +91,11 @@ export type MutationCreateOrderArgs = {
 
 export type MutationDeleteOrderArgs = {
   args: OrderInput;
+};
+
+
+export type MutationCreateSeatConditionArgs = {
+  conditions: ConditionInput;
 };
 
 export type SeatInput = {
@@ -95,20 +129,10 @@ export type CreateOrderInput = {
   endAt: Scalars['DateTime'];
 };
 
-export type SeatCondition = {
-  __typename?: 'SeatCondition';
-  id: Scalars['Int'];
-  status: Status;
+export type ConditionInput = {
+  status: Scalars['String'];
   description: Scalars['String'];
-  seatId: Scalars['Int'];
 };
-
-/** Status of seat */
-export enum Status {
-  Unavailable = 'UNAVAILABLE',
-  Uncomfortable = 'UNCOMFORTABLE',
-  Unsanitary = 'UNSANITARY'
-}
 
 export type RegularOrderFragment = (
   { __typename?: 'Order' }
@@ -170,6 +194,23 @@ export type MeQuery = (
     { __typename?: 'Order' }
     & RegularOrderFragment
   )> }
+);
+
+export type SeatConditionQueryVariables = Exact<{
+  seatId: Scalars['Int'];
+}>;
+
+
+export type SeatConditionQuery = (
+  { __typename?: 'Query' }
+  & { seatCondition: (
+    { __typename?: 'SeatConditionResponse' }
+    & Pick<SeatConditionResponse, 'error'>
+    & { seatCondition?: Maybe<(
+      { __typename?: 'SeatCondition' }
+      & Pick<SeatCondition, 'status' | 'description' | 'seatId'>
+    )> }
+  ) }
 );
 
 export type SeatsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -244,6 +285,22 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const SeatConditionDocument = gql`
+    query SeatCondition($seatId: Int!) {
+  seatCondition(seatId: $seatId) {
+    error
+    seatCondition {
+      status
+      description
+      seatId
+    }
+  }
+}
+    `;
+
+export function useSeatConditionQuery(options: Omit<Urql.UseQueryArgs<SeatConditionQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<SeatConditionQuery>({ query: SeatConditionDocument, ...options });
 };
 export const SeatsDocument = gql`
     query Seats {

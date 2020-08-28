@@ -1,0 +1,10 @@
+query SeatCondition($seatId: Int!){
+  seatCondition(seatId: $seatId) {
+    error
+    seatCondition {
+      status
+      description
+      seatId
+    }
+  }
+}

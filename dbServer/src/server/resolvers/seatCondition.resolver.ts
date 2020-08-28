@@ -1,6 +1,6 @@
 import { Order } from "../../entity/Order";
 import { isAuth } from "../../middleware/isAuth";
-import { Arg, Ctx, Field, InputType, Mutation, Query, Resolver, UseMiddleware, ObjectType } from "type-graphql";
+import { Arg, Ctx, Field, InputType, Mutation, Query, Resolver, UseMiddleware, ObjectType, Int } from "type-graphql";
 import { SeatCondition, SeatStatus } from "../../entity/SeatCondition";
 import { MyContext } from "../types";
 import { getConnection } from "typeorm";
@@ -26,7 +26,7 @@ class SeatConditionResponse {
 export class SeatConditionResolver {
   @Query(() => SeatConditionResponse)
   async seatCondition(
-    @Arg('seatId') seatId: number
+    @Arg('seatId', () => Int) seatId: number
   ): Promise<SeatConditionResponse> {
     const condition = await SeatCondition.findOne({ where: { seatId } })
     if (!condition) {
