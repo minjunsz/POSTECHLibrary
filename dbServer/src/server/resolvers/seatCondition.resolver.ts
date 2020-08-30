@@ -1,16 +1,16 @@
-import { Order } from "../../entity/Order";
-import { isAuth } from "../../middleware/isAuth";
-import { Arg, Ctx, Field, InputType, Mutation, Query, Resolver, UseMiddleware, ObjectType, Int } from "type-graphql";
-import { SeatCondition, SeatStatus } from "../../entity/SeatCondition";
-import { MyContext } from "../types";
+import { Arg, Ctx, Field, InputType, Int, Mutation, ObjectType, Query, Resolver, UseMiddleware } from "type-graphql";
 import { getConnection } from "typeorm";
+import { SeatCondition, SeatStatus } from "../../entity/SeatCondition";
+import { isAuth } from "../../middleware/isAuth";
+import { MyContext } from "../types";
 
 @InputType()
 class ConditionInput {
+  @Field(() => Int)
+  seatId!: number;
   @Field()
   status!: SeatStatus;
-
-  @Field()
+  @Field({ nullable: true })
   description?: String;
 };
 
@@ -40,16 +40,16 @@ export class SeatConditionResolver {
   @UseMiddleware(isAuth)
   async createSeatCondition(
     @Arg('conditions') conditions: ConditionInput,
-    @Ctx() { req }: MyContext
+    @Ctx() _: MyContext
   ): Promise<SeatCondition | undefined> {
-    const order = await Order.findOne(req.session.orderId);
+    // TODO: check whether this user is owner of this seat or not
     const seatConditionResult = await getConnection()
       .createQueryBuilder()
       .insert()
       .into(SeatCondition)
       .values({
         ...conditions,
-        seatId: order?.seatId
+        seatId: conditions.seatId
       })
       .execute();
     return await SeatCondition.findOne(seatConditionResult.identifiers[0].id);

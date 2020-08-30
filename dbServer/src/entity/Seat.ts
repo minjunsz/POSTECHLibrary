@@ -4,10 +4,21 @@ import {
     Column,
     BaseEntity,
     OneToOne,
- } from "typeorm";
-import { ObjectType, Field, Int } from "type-graphql";
+} from "typeorm";
+import { ObjectType, Field, Int, registerEnumType } from "type-graphql";
 import { Order } from "./Order";
 import { SeatCondition } from "./SeatCondition";
+
+export enum SeatType {
+    A = "A",
+    B = "B",
+    C = "C"
+}
+
+registerEnumType(SeatType, {
+    name: "SeatType",
+    description: "Type of Seats",
+});
 
 @ObjectType()
 @Entity()
@@ -17,16 +28,34 @@ export class Seat extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Field()
-    @Column()
-    seatNumber: string;
-
     @Column()
     seatPassword: string;
 
-    @OneToOne(() => Order, order => order.seat)
-    order: Order;
+    @Field(() => Int)
+    @Column()
+    floor: number
 
-    @OneToOne(() => SeatCondition, seatCondition => seatCondition.seat)
-    seatCondition: SeatCondition;
+    @Field()
+    @Column({ type: "float" })
+    xpos: number
+
+    @Field()
+    @Column({ type: "float" })
+    ypos: number
+
+    @Field(() => SeatType)
+    @Column({ type: "enum", enum: SeatType })
+    status: SeatType;
+
+    @Field()
+    @Column()
+    hasOutlet: boolean
+
+    @Field({ nullable: true })
+    @OneToOne(() => Order, order => order.seat, { nullable: true })
+    order?: Order;
+
+    @Field({ nullable: true })
+    @OneToOne(() => SeatCondition, seatCondition => seatCondition.seat, { nullable: true })
+    seatCondition?: SeatCondition;
 }

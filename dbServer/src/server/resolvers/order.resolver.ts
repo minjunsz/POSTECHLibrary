@@ -1,4 +1,4 @@
-import { Resolver, InputType, Field, Arg, Mutation, ObjectType, Ctx, Query } from "type-graphql";
+import { Resolver, InputType, Field, Arg, Mutation, ObjectType, Ctx, Query, Int } from "type-graphql";
 import { Order } from "../../entity/Order";
 import { Seat } from "../../entity/Seat";
 import { encrypt, compare } from "../../../utils/password";
@@ -6,14 +6,15 @@ import { getConnection } from "typeorm";
 import moment from "moment";
 import { MyContext } from "../types";
 import { COOKIE_NAME } from "../constants";
-
+// TODO: it seems like findeOne with relations uses two sql statements.
+//        reimplement findone with query builder if it containes "relations"
 @InputType()
 export class OrderInput {
-  @Field()
-  seatPassword: string;
+  @Field(() => Int)
+  seatId: number;
 
   @Field()
-  seatNumber: string;
+  seatPassword: string;
 
   @Field()
   password: string;
@@ -21,8 +22,8 @@ export class OrderInput {
 
 @InputType()
 export class CreateOrderInput {
-  @Field()
-  seatNumber: string;
+  @Field(() => Int)
+  seatId: number;
 
   @Field()
   seatPassword: string;
@@ -72,19 +73,21 @@ export class OrderResolver {
     @Arg('args') args: OrderInput,
     @Ctx() { req }: MyContext
   ): Promise<OrderResponse> {
-    const seat = await Seat.findOne({
-      seatNumber: args.seatNumber,
+    const order = await Order.findOne({
+      relations: ["seat"],
+      where: { seatId: args.seatId }
     });
 
-    if (!seat) {
+    if (!order) {
       return {
         errors: [{
-          field: "seatNumber",
-          message: "No such seat data."
+          field: "seatId",
+          message: "No such order."
         }]
       };
     }
-    if (!await compare(seat.seatPassword, args.seatPassword)) {
+
+    if (!await compare(order.seat.seatPassword, args.seatPassword)) {
       return {
         errors: [{
           field: "seatPassword",
@@ -93,18 +96,6 @@ export class OrderResolver {
       };
     }
 
-    const order = await Order.findOne({
-      seatId: seat.id,
-    });
-
-    if (!order) {
-      return {
-        errors: [{
-          field: "seatNumber",
-          message: "No such order."
-        }]
-      };
-    }
     if (!await compare(order.password, args.password)) {
       return {
         errors: [{
@@ -156,14 +147,12 @@ export class OrderResolver {
       };
     }
 
-    const seat = await Seat.findOne({
-      seatNumber: args.seatNumber,
-    });
+    const seat = await Seat.findOne({ id: args.seatId });
 
     if (!seat) {
       return {
         errors: [{
-          field: "seatNumber",
+          field: "seatId",
           message: "No such seat data."
         }]
       };
@@ -184,7 +173,7 @@ export class OrderResolver {
     if (alreadyExistedOrder) {
       return {
         errors: [{
-          field: "seatNumber",
+          field: "seatId",
           message: "Currently in use."
         }]
       };
@@ -219,19 +208,21 @@ export class OrderResolver {
 
   @Mutation(() => OrderResponse)
   async deleteOrder(@Arg('args') args: OrderInput): Promise<OrderResponse> {
-    const seat = await Seat.findOne({
-      seatNumber: args.seatNumber,
+    const order = await Order.findOne({
+      relations: ["seat"],
+      where: { seatId: args.seatId }
     });
 
-    if (!seat) {
+    if (!order) {
       return {
         errors: [{
-          field: "seatNumber",
-          message: "No such seat data."
+          field: "seatId",
+          message: "No such order."
         }]
       };
     }
-    if (!await compare(seat.seatPassword, args.seatPassword)) {
+
+    if (!await compare(order.seat.seatPassword, args.seatPassword)) {
       return {
         errors: [{
           field: "seatPassword",
@@ -240,18 +231,6 @@ export class OrderResolver {
       };
     }
 
-    const order = await Order.findOne({
-      seatId: seat.id,
-    });
-
-    if (!order) {
-      return {
-        errors: [{
-          field: "seatNumber",
-          message: "No such order."
-        }]
-      };
-    }
     if (!await compare(order.password, args.password)) {
       return {
         errors: [{

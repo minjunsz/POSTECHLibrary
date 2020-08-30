@@ -28,8 +28,8 @@ export class Order extends BaseEntity {
   @Column()
   endAt: Date;
 
-  @Field(() => Int, { nullable: true })
-  @Column({ type: "int" , default: null, nullable: true })
+  @Field(() => Int)
+  @Column({ type: "int" })
   seatId: number;
 
   @OneToOne(() => Seat, seat => seat.order)

@@ -1,0 +1,6 @@
+fragment RegularSeatCondition on SeatCondition {
+  id
+  status
+  description
+  seatId
+}

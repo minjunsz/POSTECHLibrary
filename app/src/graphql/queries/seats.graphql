@@ -1,6 +1,15 @@
-query Seats {
-  seats {
+query Seats($limit: Int!, $floor: Int, $cursor: Int) {
+  seats(limit: $limit, floor: $floor, cursor: $cursor) {
     id
-    seatNumber
+    floor
+    xpos
+    ypos
+    hasOutlet
+    order {
+      id
+    }
+    seatCondition {
+      ...RegularSeatCondition
+    }
   }
 }

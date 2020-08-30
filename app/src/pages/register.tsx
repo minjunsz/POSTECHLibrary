@@ -20,19 +20,20 @@ const Register: React.FC<registerProps> = ({ }) => {
       <Wrapper variant="small">
         <Formik
           initialValues={{
-            seatNumber: "seat3",
-            seatPassword: "3333",
+            seatId: "1",
+            seatPassword: "1",
             password: "1234",
-            startAt: "2020-08-23T12:38:24.791Z", //TODO: implement spinner to select time
-            endAt: "2020-08-24T12:38:24.791Z"
+            startAt: "2021-08-23T12:38:24.791Z", //TODO: implement spinner to select time
+            endAt: "2021-08-24T12:38:24.791Z"
           }}
           onSubmit={async (values, { setErrors }) => {
             const args = {
               ...values,
-              startAt: "2020-08-25T12:38:24.791Z",
-              endAt: new Date('October 26, 2020 00:00:00')
+              seatId: parseInt(values.seatId)
             };
             const response = await register({ args });
+
+            console.log(response);
             if (response.data?.createOrder.errors) {
               setErrors(toErrorMap(response.data.createOrder.errors));
             } else if (response.data?.createOrder.order) {
@@ -43,9 +44,9 @@ const Register: React.FC<registerProps> = ({ }) => {
           {({ isSubmitting }) => (
             <Form>
               <InputField
-                name="seatNumber"
-                placeholder="enter seat number"
-                label="seat number"
+                name="seatId"
+                placeholder="enter seat id"
+                label="seat id"
               />
               <Box mt={4}>
                 <InputField

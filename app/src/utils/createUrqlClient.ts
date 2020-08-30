@@ -26,7 +26,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
                 }
               })
           },
-          retister: (result, args, cache, info) => {
+          createOrder: (result, args, cache, info) => {
             betterUpdateQuery<CreateOrderMutation, MeQuery>(
               cache,
               { query: MeDocument },

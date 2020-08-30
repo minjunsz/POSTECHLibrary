@@ -14,21 +14,22 @@ interface loginProps { }
 
 const Login: React.FC<loginProps> = ({ }) => {
   const router = useRouter();
-  const [, register] = useLoginMutation();
+  const [, login] = useLoginMutation();
   return (
     <Layout>
       <Wrapper variant="small">
         <Formik
           initialValues={{
-            seatNumber: "seat3",
-            seatPassword: "3333",
+            seatId: "1",
+            seatPassword: "1",
             password: "1234",
           }}
           onSubmit={async (values, { setErrors }) => {
             const args = {
               ...values,
+              seatId: parseInt(values.seatId)
             };
-            const response = await register({ args });
+            const response = await login({ args });
             if (response.data?.login.errors) {
               setErrors(toErrorMap(response.data.login.errors));
             } else if (response.data?.login.order) {
@@ -39,9 +40,9 @@ const Login: React.FC<loginProps> = ({ }) => {
           {({ isSubmitting }) => (
             <Form>
               <InputField
-                name="seatNumber"
-                placeholder="enter seat number"
-                label="seat number"
+                name="seatId"
+                placeholder="enter seat id"
+                label="seat id"
               />
               <Box mt={4}>
                 <InputField
@@ -65,7 +66,7 @@ const Login: React.FC<loginProps> = ({ }) => {
                 isLoading={isSubmitting}
                 variantColor="teal"
               >
-                register
+                login
             </Button>
             </Form>
           )}
