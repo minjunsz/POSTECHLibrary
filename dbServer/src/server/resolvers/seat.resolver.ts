@@ -1,7 +1,7 @@
-import { Resolver, InputType, Field, Arg, Mutation, Query, Int } from "type-graphql";
-import { Seat, SeatType } from "../../entity/Seat";
+import { Arg, Field, InputType, Int, Mutation, Query, Resolver } from "type-graphql";
 import { getConnection } from "typeorm";
 import { encrypt } from "../../../utils/password";
+import { Seat, SeatType } from "../../entity/Seat";
 
 @InputType()
 class SeatInput {
@@ -32,6 +32,7 @@ export class SeatResolver {
       .getRepository(Seat)
       .createQueryBuilder('seats')
       .leftJoinAndSelect("seats.seatCondition", "seatCondition")
+      .leftJoinAndSelect("seats.order", "order")
       .orderBy('seats.id')
       .take(realLimit)
     if (floor) {
@@ -42,6 +43,20 @@ export class SeatResolver {
     }
 
     return qb.getMany();
+  }
+
+  @Query(() => Seat)
+  async seat(
+    @Arg('seatId', () => Int) seatId: number,
+  ): Promise<Seat> {
+    const qb = getConnection()
+      .getRepository(Seat)
+      .createQueryBuilder('seat')
+      .leftJoinAndSelect("seat.seatCondition", "seatCondition")
+      .whereInIds(seatId)
+    const result = await qb.getOne();
+    if (!result) { throw new Error("not Authenticated"); }
+    return result;
   }
 
   @Mutation(() => Seat)

@@ -4,7 +4,8 @@ import { useSeatsQuery, RegularSeatConditionFragment } from '../generated/graphq
 import { Box, Accordion, AccordionItem, AccordionHeader, AccordionIcon, AccordionPanel, Stack, Text } from '@chakra-ui/core';
 import { isServer } from '../utils/isServer';
 import { Layout } from '../components/Layout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { PlotPoints } from '../components/PlotPoints/PlotPoints';
 
 const Index = () => {
   const [{ data, fetching }] = useSeatsQuery({
@@ -33,6 +34,16 @@ const Index = () => {
 
   return (
     <Layout>
+      <Box mx='auto' maxW="400px"> {/* TODO: add library map as background image */}
+        <PlotPoints
+          coords={data.seats.map((seat) => [seat.xpos, seat.ypos])}
+          boxSize="75%"
+          boxColor="purple.200"
+          dotSize="5%"
+          dotColor={data.seats.map((seat) => !seat.order ? "green.300" : "red.300")}
+          hoverData={data.seats.map((seat) => seat.seatCondition)}
+        ></PlotPoints>
+      </Box>
       <Accordion allowMultiple={true} >
         {data.seats.map(seat => (
           <AccordionItem key={seat.id}>

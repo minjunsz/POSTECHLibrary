@@ -1,0 +1,7 @@
+query Seat($seatId: Int!){
+  seat(seatId: $seatId) {
+    ...RegularSeat
+    order {id}
+    seatCondition {...RegularSeatCondition}
+  }
+}

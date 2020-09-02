@@ -1,0 +1,7 @@
+fragment RegularSeat on Seat {
+    id
+    floor
+    xpos
+    ypos
+    hasOutlet
+}

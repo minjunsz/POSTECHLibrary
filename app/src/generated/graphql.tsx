@@ -17,6 +17,7 @@ export type Scalars = {
 export type Query = {
   __typename?: 'Query';
   seats: Array<Seat>;
+  seat: Seat;
   me?: Maybe<Order>;
   seatCondition: SeatConditionResponse;
 };
@@ -26,6 +27,11 @@ export type QuerySeatsArgs = {
   cursor?: Maybe<Scalars['Int']>;
   floor?: Maybe<Scalars['Int']>;
   limit: Scalars['Int'];
+};
+
+
+export type QuerySeatArgs = {
+  seatId: Scalars['Int'];
 };
 
 
@@ -164,6 +170,11 @@ export type RegularOrderFragment = (
   & Pick<Order, 'id' | 'startAt' | 'endAt' | 'seatId'>
 );
 
+export type RegularSeatFragment = (
+  { __typename?: 'Seat' }
+  & Pick<Seat, 'id' | 'floor' | 'xpos' | 'ypos' | 'hasOutlet'>
+);
+
 export type RegularSeatConditionFragment = (
   { __typename?: 'SeatCondition' }
   & Pick<SeatCondition, 'id' | 'status' | 'description' | 'seatId'>
@@ -226,6 +237,26 @@ export type MeQuery = (
   )> }
 );
 
+export type SeatQueryVariables = Exact<{
+  seatId: Scalars['Int'];
+}>;
+
+
+export type SeatQuery = (
+  { __typename?: 'Query' }
+  & { seat: (
+    { __typename?: 'Seat' }
+    & { order?: Maybe<(
+      { __typename?: 'Order' }
+      & Pick<Order, 'id'>
+    )>, seatCondition?: Maybe<(
+      { __typename?: 'SeatCondition' }
+      & RegularSeatConditionFragment
+    )> }
+    & RegularSeatFragment
+  ) }
+);
+
 export type SeatConditionQueryVariables = Exact<{
   seatId: Scalars['Int'];
 }>;
@@ -254,7 +285,6 @@ export type SeatsQuery = (
   { __typename?: 'Query' }
   & { seats: Array<(
     { __typename?: 'Seat' }
-    & Pick<Seat, 'id' | 'floor' | 'xpos' | 'ypos' | 'hasOutlet'>
     & { order?: Maybe<(
       { __typename?: 'Order' }
       & Pick<Order, 'id'>
@@ -262,6 +292,7 @@ export type SeatsQuery = (
       { __typename?: 'SeatCondition' }
       & RegularSeatConditionFragment
     )> }
+    & RegularSeatFragment
   )> }
 );
 
@@ -271,6 +302,15 @@ export const RegularOrderFragmentDoc = gql`
   startAt
   endAt
   seatId
+}
+    `;
+export const RegularSeatFragmentDoc = gql`
+    fragment RegularSeat on Seat {
+  id
+  floor
+  xpos
+  ypos
+  hasOutlet
 }
     `;
 export const RegularSeatConditionFragmentDoc = gql`
@@ -335,6 +375,24 @@ export const MeDocument = gql`
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };
+export const SeatDocument = gql`
+    query Seat($seatId: Int!) {
+  seat(seatId: $seatId) {
+    ...RegularSeat
+    order {
+      id
+    }
+    seatCondition {
+      ...RegularSeatCondition
+    }
+  }
+}
+    ${RegularSeatFragmentDoc}
+${RegularSeatConditionFragmentDoc}`;
+
+export function useSeatQuery(options: Omit<Urql.UseQueryArgs<SeatQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<SeatQuery>({ query: SeatDocument, ...options });
+};
 export const SeatConditionDocument = gql`
     query SeatCondition($seatId: Int!) {
   seatCondition(seatId: $seatId) {
@@ -352,11 +410,7 @@ export function useSeatConditionQuery(options: Omit<Urql.UseQueryArgs<SeatCondit
 export const SeatsDocument = gql`
     query Seats($limit: Int!, $floor: Int, $cursor: Int) {
   seats(limit: $limit, floor: $floor, cursor: $cursor) {
-    id
-    floor
-    xpos
-    ypos
-    hasOutlet
+    ...RegularSeat
     order {
       id
     }
@@ -365,7 +419,8 @@ export const SeatsDocument = gql`
     }
   }
 }
-    ${RegularSeatConditionFragmentDoc}`;
+    ${RegularSeatFragmentDoc}
+${RegularSeatConditionFragmentDoc}`;
 
 export function useSeatsQuery(options: Omit<Urql.UseQueryArgs<SeatsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<SeatsQuery>({ query: SeatsDocument, ...options });

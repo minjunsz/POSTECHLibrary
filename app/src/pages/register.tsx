@@ -37,7 +37,7 @@ const Register: React.FC<registerProps> = ({ }) => {
             if (response.data?.createOrder.errors) {
               setErrors(toErrorMap(response.data.createOrder.errors));
             } else if (response.data?.createOrder.order) {
-              router.push('/');
+              router.push('/mypage');
             }
           }}
         >
