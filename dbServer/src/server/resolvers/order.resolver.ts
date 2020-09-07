@@ -1,11 +1,12 @@
-import { Resolver, InputType, Field, Arg, Mutation, ObjectType, Ctx, Query, Int } from "type-graphql";
+import moment from "moment";
+import { Arg, Ctx, Field, InputType, Int, Mutation, ObjectType, Query, Resolver, UseMiddleware } from "type-graphql";
+import { getConnection } from "typeorm";
+import { compare, encrypt } from "../../../utils/password";
 import { Order } from "../../entity/Order";
 import { Seat } from "../../entity/Seat";
-import { encrypt, compare } from "../../../utils/password";
-import { getConnection } from "typeorm";
-import moment from "moment";
-import { MyContext } from "../types";
+import { isAuth } from "../../middleware/isAuth";
 import { COOKIE_NAME } from "../constants";
+import { MyContext } from "../types";
 // TODO: it seems like findeOne with relations uses two sql statements.
 //        reimplement findone with query builder if it containes "relations"
 @InputType()
@@ -207,10 +208,14 @@ export class OrderResolver {
   }
 
   @Mutation(() => OrderResponse)
-  async deleteOrder(@Arg('args') args: OrderInput): Promise<OrderResponse> {
+  @UseMiddleware(isAuth)
+  async deleteOrder(
+    @Arg('seatId', () => Int) seatId: number,
+    @Ctx() { req, res }: MyContext
+  ): Promise<OrderResponse> {
     const order = await Order.findOne({
       relations: ["seat"],
-      where: { seatId: args.seatId }
+      where: { seatId }
     });
 
     if (!order) {
@@ -222,31 +227,40 @@ export class OrderResolver {
       };
     }
 
-    if (!await compare(order.seat.seatPassword, args.seatPassword)) {
+    if (req.session.orderId !== order.id) {
       return {
         errors: [{
-          field: "seatPassword",
-          message: "Invalid seat password."
+          field: "Authentication",
+          message: "You are not allowed to delete this order."
         }]
       };
     }
 
-    if (!await compare(order.password, args.password)) {
-      return {
-        errors: [{
-          field: "password",
-          message: "Password mismatch."
-        }]
-      };
-    }
-
-    await getConnection()
+    const delResult = await getConnection()
       .createQueryBuilder()
       .delete()
       .from(Order)
       .where(`id = ${order.id}`)
       .execute();
 
-    return { order };
+    if (delResult.affected) {
+      const sessionDestroyResult = await new Promise<boolean>((resolver) => {
+        req.session.destroy((err) => {
+          if (err) {
+            console.error(err);
+            resolver(false);
+            return;
+          }
+          res.clearCookie(COOKIE_NAME);
+          resolver(true);
+          return;
+        })
+      })
+      if (!sessionDestroyResult) { throw new Error('Failed to destroy login session'); }
+      return { order };
+    }
+    else {
+      throw new Error('Server failed to delete order');
+    }
   }
 }

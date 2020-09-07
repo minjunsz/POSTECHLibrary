@@ -1,8 +1,7 @@
-import gql from 'graphql-tag';
-import * as Urql from 'urql';
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -116,7 +115,7 @@ export type MutationCreateOrderArgs = {
 
 
 export type MutationDeleteOrderArgs = {
-  args: OrderInput;
+  seatId: Scalars['Int'];
 };
 
 
@@ -178,6 +177,25 @@ export type RegularSeatFragment = (
 export type RegularSeatConditionFragment = (
   { __typename?: 'SeatCondition' }
   & Pick<SeatCondition, 'id' | 'status' | 'description' | 'seatId'>
+);
+
+export type DeleteOrderMutationVariables = Exact<{
+  seatId: Scalars['Int'];
+}>;
+
+
+export type DeleteOrderMutation = (
+  { __typename?: 'Mutation' }
+  & { deleteOrder: (
+    { __typename?: 'OrderResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'FieldError' }
+      & Pick<FieldError, 'field' | 'message'>
+    )>>, order?: Maybe<(
+      { __typename?: 'Order' }
+      & RegularOrderFragment
+    )> }
+  ) }
 );
 
 export type LoginMutationVariables = Exact<{
@@ -321,6 +339,44 @@ export const RegularSeatConditionFragmentDoc = gql`
   seatId
 }
     `;
+export const DeleteOrderDocument = gql`
+    mutation DeleteOrder($seatId: Int!) {
+  deleteOrder(seatId: $seatId) {
+    errors {
+      field
+      message
+    }
+    order {
+      ...RegularOrder
+    }
+  }
+}
+    ${RegularOrderFragmentDoc}`;
+export type DeleteOrderMutationFn = Apollo.MutationFunction<DeleteOrderMutation, DeleteOrderMutationVariables>;
+
+/**
+ * __useDeleteOrderMutation__
+ *
+ * To run a mutation, you first call `useDeleteOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteOrderMutation, { data, loading, error }] = useDeleteOrderMutation({
+ *   variables: {
+ *      seatId: // value for 'seatId'
+ *   },
+ * });
+ */
+export function useDeleteOrderMutation(baseOptions?: Apollo.MutationHookOptions<DeleteOrderMutation, DeleteOrderMutationVariables>) {
+        return Apollo.useMutation<DeleteOrderMutation, DeleteOrderMutationVariables>(DeleteOrderDocument, baseOptions);
+      }
+export type DeleteOrderMutationHookResult = ReturnType<typeof useDeleteOrderMutation>;
+export type DeleteOrderMutationResult = Apollo.MutationResult<DeleteOrderMutation>;
+export type DeleteOrderMutationOptions = Apollo.BaseMutationOptions<DeleteOrderMutation, DeleteOrderMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($args: OrderInput!) {
   login(args: $args) {
@@ -334,19 +390,60 @@ export const LoginDocument = gql`
   }
 }
     ${RegularOrderFragmentDoc}`;
+export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
 
-export function useLoginMutation() {
-  return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
-};
+/**
+ * __useLoginMutation__
+ *
+ * To run a mutation, you first call `useLoginMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLoginMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [loginMutation, { data, loading, error }] = useLoginMutation({
+ *   variables: {
+ *      args: // value for 'args'
+ *   },
+ * });
+ */
+export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
+        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, baseOptions);
+      }
+export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
+export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
+export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
 export const LogoutDocument = gql`
     mutation Logout {
   logout
 }
     `;
+export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>;
 
-export function useLogoutMutation() {
-  return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
-};
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, baseOptions);
+      }
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
+export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
 export const CreateOrderDocument = gql`
     mutation CreateOrder($args: CreateOrderInput!) {
   createOrder(args: $args) {
@@ -360,10 +457,31 @@ export const CreateOrderDocument = gql`
   }
 }
     ${RegularOrderFragmentDoc}`;
+export type CreateOrderMutationFn = Apollo.MutationFunction<CreateOrderMutation, CreateOrderMutationVariables>;
 
-export function useCreateOrderMutation() {
-  return Urql.useMutation<CreateOrderMutation, CreateOrderMutationVariables>(CreateOrderDocument);
-};
+/**
+ * __useCreateOrderMutation__
+ *
+ * To run a mutation, you first call `useCreateOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOrderMutation, { data, loading, error }] = useCreateOrderMutation({
+ *   variables: {
+ *      args: // value for 'args'
+ *   },
+ * });
+ */
+export function useCreateOrderMutation(baseOptions?: Apollo.MutationHookOptions<CreateOrderMutation, CreateOrderMutationVariables>) {
+        return Apollo.useMutation<CreateOrderMutation, CreateOrderMutationVariables>(CreateOrderDocument, baseOptions);
+      }
+export type CreateOrderMutationHookResult = ReturnType<typeof useCreateOrderMutation>;
+export type CreateOrderMutationResult = Apollo.MutationResult<CreateOrderMutation>;
+export type CreateOrderMutationOptions = Apollo.BaseMutationOptions<CreateOrderMutation, CreateOrderMutationVariables>;
 export const MeDocument = gql`
     query Me {
   me {
@@ -372,9 +490,30 @@ export const MeDocument = gql`
 }
     ${RegularOrderFragmentDoc}`;
 
-export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
-};
+/**
+ * __useMeQuery__
+ *
+ * To run a query within a React component, call `useMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
+        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, baseOptions);
+      }
+export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
+          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, baseOptions);
+        }
+export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
+export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
+export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const SeatDocument = gql`
     query Seat($seatId: Int!) {
   seat(seatId: $seatId) {
@@ -390,9 +529,31 @@ export const SeatDocument = gql`
     ${RegularSeatFragmentDoc}
 ${RegularSeatConditionFragmentDoc}`;
 
-export function useSeatQuery(options: Omit<Urql.UseQueryArgs<SeatQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<SeatQuery>({ query: SeatDocument, ...options });
-};
+/**
+ * __useSeatQuery__
+ *
+ * To run a query within a React component, call `useSeatQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeatQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSeatQuery({
+ *   variables: {
+ *      seatId: // value for 'seatId'
+ *   },
+ * });
+ */
+export function useSeatQuery(baseOptions?: Apollo.QueryHookOptions<SeatQuery, SeatQueryVariables>) {
+        return Apollo.useQuery<SeatQuery, SeatQueryVariables>(SeatDocument, baseOptions);
+      }
+export function useSeatLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeatQuery, SeatQueryVariables>) {
+          return Apollo.useLazyQuery<SeatQuery, SeatQueryVariables>(SeatDocument, baseOptions);
+        }
+export type SeatQueryHookResult = ReturnType<typeof useSeatQuery>;
+export type SeatLazyQueryHookResult = ReturnType<typeof useSeatLazyQuery>;
+export type SeatQueryResult = Apollo.QueryResult<SeatQuery, SeatQueryVariables>;
 export const SeatConditionDocument = gql`
     query SeatCondition($seatId: Int!) {
   seatCondition(seatId: $seatId) {
@@ -404,9 +565,31 @@ export const SeatConditionDocument = gql`
 }
     ${RegularSeatConditionFragmentDoc}`;
 
-export function useSeatConditionQuery(options: Omit<Urql.UseQueryArgs<SeatConditionQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<SeatConditionQuery>({ query: SeatConditionDocument, ...options });
-};
+/**
+ * __useSeatConditionQuery__
+ *
+ * To run a query within a React component, call `useSeatConditionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeatConditionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSeatConditionQuery({
+ *   variables: {
+ *      seatId: // value for 'seatId'
+ *   },
+ * });
+ */
+export function useSeatConditionQuery(baseOptions?: Apollo.QueryHookOptions<SeatConditionQuery, SeatConditionQueryVariables>) {
+        return Apollo.useQuery<SeatConditionQuery, SeatConditionQueryVariables>(SeatConditionDocument, baseOptions);
+      }
+export function useSeatConditionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeatConditionQuery, SeatConditionQueryVariables>) {
+          return Apollo.useLazyQuery<SeatConditionQuery, SeatConditionQueryVariables>(SeatConditionDocument, baseOptions);
+        }
+export type SeatConditionQueryHookResult = ReturnType<typeof useSeatConditionQuery>;
+export type SeatConditionLazyQueryHookResult = ReturnType<typeof useSeatConditionLazyQuery>;
+export type SeatConditionQueryResult = Apollo.QueryResult<SeatConditionQuery, SeatConditionQueryVariables>;
 export const SeatsDocument = gql`
     query Seats($limit: Int!, $floor: Int, $cursor: Int) {
   seats(limit: $limit, floor: $floor, cursor: $cursor) {
@@ -422,6 +605,30 @@ export const SeatsDocument = gql`
     ${RegularSeatFragmentDoc}
 ${RegularSeatConditionFragmentDoc}`;
 
-export function useSeatsQuery(options: Omit<Urql.UseQueryArgs<SeatsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<SeatsQuery>({ query: SeatsDocument, ...options });
-};
+/**
+ * __useSeatsQuery__
+ *
+ * To run a query within a React component, call `useSeatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSeatsQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      floor: // value for 'floor'
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function useSeatsQuery(baseOptions?: Apollo.QueryHookOptions<SeatsQuery, SeatsQueryVariables>) {
+        return Apollo.useQuery<SeatsQuery, SeatsQueryVariables>(SeatsDocument, baseOptions);
+      }
+export function useSeatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeatsQuery, SeatsQueryVariables>) {
+          return Apollo.useLazyQuery<SeatsQuery, SeatsQueryVariables>(SeatsDocument, baseOptions);
+        }
+export type SeatsQueryHookResult = ReturnType<typeof useSeatsQuery>;
+export type SeatsLazyQueryHookResult = ReturnType<typeof useSeatsLazyQuery>;
+export type SeatsQueryResult = Apollo.QueryResult<SeatsQuery, SeatsQueryVariables>;

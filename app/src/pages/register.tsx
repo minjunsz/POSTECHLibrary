@@ -1,20 +1,30 @@
-import React from "react";
-import { Formik, Form } from "formik";
 import { Box, Button } from "@chakra-ui/core";
-import { Wrapper } from "../components/Wrapper";
-import { InputField } from "../components/InputField";
-import { useCreateOrderMutation } from '../generated/graphql';
-import { toErrorMap } from "../utils/toErrorMap";
+import { Form, Formik } from "formik";
 import { useRouter } from 'next/router';
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import React from "react";
+import { InputField } from "../components/InputField";
 import { Layout } from "../components/Layout";
+import { Wrapper } from "../components/Wrapper";
+import { useCreateOrderMutation, MeQuery, MeDocument, SeatsQuery, SeatsDocument, SeatQuery, SeatDocument } from '../generated/graphql';
+import { toErrorMap } from "../utils/toErrorMap";
 
 interface registerProps { }
 
 const Register: React.FC<registerProps> = ({ }) => {
   const router = useRouter();
-  const [, register] = useCreateOrderMutation();
+  const [register] = useCreateOrderMutation({
+    update: (cache, { data }) => {
+      if (data?.createOrder.order) {
+        cache.writeQuery<MeQuery>({
+          query: MeDocument,
+          data: {
+            __typename: "Query",
+            me: data.createOrder.order,
+          },
+        });
+      }
+    }
+  });
   return (
     <Layout>
       <Wrapper variant="small">
@@ -31,9 +41,7 @@ const Register: React.FC<registerProps> = ({ }) => {
               ...values,
               seatId: parseInt(values.seatId)
             };
-            const response = await register({ args });
-
-            console.log(response);
+            const response = await register({ variables: { args } });
             if (response.data?.createOrder.errors) {
               setErrors(toErrorMap(response.data.createOrder.errors));
             } else if (response.data?.createOrder.order) {
@@ -76,8 +84,8 @@ const Register: React.FC<registerProps> = ({ }) => {
           )}
         </Formik>
       </Wrapper>
-    </Layout>
+    </Layout >
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Register);
+export default Register;

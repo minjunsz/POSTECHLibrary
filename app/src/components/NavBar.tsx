@@ -1,24 +1,29 @@
-import React from 'react'
-import { Box, Link, Flex, Button } from '@chakra-ui/core';
+import { Box, Button, Flex, Link } from '@chakra-ui/core';
 import NextLink from "next/link";
-import { useMeQuery, useLogoutMutation } from '../generated/graphql';
-import { isServer } from '../utils/isServer';
+import React from 'react';
+import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 
 interface NavBarProps {
 
 }
 
 export const NavBar: React.FC<NavBarProps> = ({ }) => {
-  const [{ data, fetching }] = useMeQuery({
-    pause: isServer()
+  const { data: meData, loading: meLoading } = useMeQuery({
+    ssr: false
   });
-  const [{ fetching: logoutFetching }, logout] = useLogoutMutation()
+  const [logout, { loading: logoutLoading }] = useLogoutMutation({
+    update: (cache, { data }) => {
+      if (data?.logout) {
+        cache.evict({ id: cache.identify(meData?.me!) });
+      }
+    }
+  })
 
   let menus = null;
 
-  if (fetching) {
+  if (meLoading) {
     menus = <div>loading...</div>;
-  } else if (!data?.me) {
+  } else if (!meData?.me) {
     menus = (
       <>
         <NextLink href="/login">
@@ -32,10 +37,13 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
   } else {
     menus = (
       <Flex>
-        <Box mx={2}>seat {data.me.seatId} is selected</Box>
+        <Box mx={2}>seat {meData.me.seatId} is selected</Box>
+        <NextLink href="/mypage">
+          <Link m={1}>MyPage</Link>
+        </NextLink>
         <Button variant="link"
           onClick={() => { logout(); }}
-          isLoading={logoutFetching}
+          isLoading={logoutLoading}
         >logout</Button>
       </Flex >
     )

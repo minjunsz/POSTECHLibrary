@@ -1,24 +1,22 @@
-import { withUrqlClient } from 'next-urql';
-import { createUrqlClient } from '../utils/createUrqlClient';
-import { useSeatsQuery, RegularSeatConditionFragment } from '../generated/graphql';
-import { Box, Accordion, AccordionItem, AccordionHeader, AccordionIcon, AccordionPanel, Stack, Text } from '@chakra-ui/core';
-import { isServer } from '../utils/isServer';
+import { Accordion, AccordionHeader, AccordionIcon, AccordionItem, AccordionPanel, Box, Stack, Text } from '@chakra-ui/core';
 import { Layout } from '../components/Layout';
-import { useState, useEffect } from 'react';
 import { PlotPoints } from '../components/PlotPoints/PlotPoints';
+import { RegularSeatConditionFragment, useSeatsQuery } from '../generated/graphql';
 
 const Index = () => {
-  const [{ data, fetching }] = useSeatsQuery({
+  const { data: seatsData, loading: seatsLoading } = useSeatsQuery({
     variables: {
       limit: 10,
       cursor: null,
       floor: null
     },
-    pause: isServer()
+    ssr: false,
+    fetchPolicy: "no-cache",
+    pollInterval: 500
   });
 
-  if (fetching) { return <Layout><div>Loading Seats...</div></Layout>; }
-  if (!data) { return <Layout><div>Failed to Fetch Data</div></Layout>; }
+  if (seatsLoading) { return <Layout><div>Loading Seats...</div></Layout>; }
+  if (!seatsData) { return <Layout><div>Failed to Fetch Data</div></Layout>; }
 
   const renderSeatCondition = (seatCondition: RegularSeatConditionFragment | null | undefined) => {
     if (!seatCondition) { return <div>No Seat Condition Available</div> }
@@ -36,16 +34,16 @@ const Index = () => {
     <Layout>
       <Box mx='auto' maxW="400px"> {/* TODO: add library map as background image */}
         <PlotPoints
-          coords={data.seats.map((seat) => [seat.xpos, seat.ypos])}
+          coords={seatsData.seats.map((seat) => [seat.xpos, seat.ypos])}
           boxSize="75%"
           boxColor="purple.200"
           dotSize="5%"
-          dotColor={data.seats.map((seat) => !seat.order ? "green.300" : "red.300")}
-          hoverData={data.seats.map((seat) => seat.seatCondition)}
+          dotColor={seatsData.seats.map((seat) => !seat.order ? "green.300" : "red.300")}
+          hoverData={seatsData.seats.map((seat) => seat.seatCondition)}
         ></PlotPoints>
       </Box>
       <Accordion allowMultiple={true} >
-        {data.seats.map(seat => (
+        {seatsData.seats.map(seat => (
           <AccordionItem key={seat.id}>
             <AccordionHeader>
               <Box flex="1" textAlign="left">
@@ -61,4 +59,4 @@ const Index = () => {
     </Layout>);
 }
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Index)
+export default Index;

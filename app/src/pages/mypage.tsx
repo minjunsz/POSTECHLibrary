@@ -1,30 +1,34 @@
+import { Box, Button, Flex } from '@chakra-ui/core';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { useMeQuery, useSeatQuery } from '../generated/graphql';
-import { isServer } from '../utils/isServer';
-import { withUrqlClient } from 'next-urql';
-import { createUrqlClient } from '../utils/createUrqlClient';
 import { Layout } from '../components/Layout';
-import { Box, Flex } from '@chakra-ui/core';
 import { PlotPoints } from '../components/PlotPoints/PlotPoints';
+import { useDeleteOrderMutation, useMeQuery, useSeatQuery } from '../generated/graphql';
 
 interface MypageProps { }
 
 const Mypage: React.FC<MypageProps> = ({ }) => {
   const router = useRouter();
-  const [{ data: meData, fetching: meFetching }] = useMeQuery();
+  const { data: meData, loading: meLoading } = useMeQuery();
   const notLoggedIn = !meData?.me;
-  const [{ data: seatData, fetching: seatFetching }] = useSeatQuery({
-    pause: meFetching || notLoggedIn,
+  const { data: seatData, loading: seatLoading } = useSeatQuery({
+    skip: meLoading || notLoggedIn,
     variables: {
       seatId: meData?.me?.seatId!
     }
   })
+  const [delOrder] = useDeleteOrderMutation({
+    update: (cache, { data }) => {
+      if (data?.deleteOrder.order) {
+        cache.evict({ id: cache.identify(data.deleteOrder.order) });
+      }
+    }
+  })
 
   let content = (<div>Loading</div>)
-  if (!meFetching) {
+  if (!meLoading) {
     if (notLoggedIn) { router.push('/'); }
-    else if (!seatFetching) {
+    else if (!seatLoading) {
       if (!seatData?.seat) {
         content = (<div>server Error</div>); // TODO: add server Error component
       } else {
@@ -59,13 +63,22 @@ const Mypage: React.FC<MypageProps> = ({ }) => {
                       dotColor={["green.300"]}
                     ></PlotPoints>
                   </Box>
-                  ({seatData.seat.xpos}, {seatData.seat.ypos})
                 </Box>
                 <Box color="gray.600" fontSize="sm" w="100%">
                   자리 상태: {seatData.seat.seatCondition?.status}
                 </Box>
                 <Box color="gray.600" fontSize="sm" w="100%">
                   기타: {seatData.seat.seatCondition?.description}
+                </Box>
+                <Box ml="auto">
+                  <Button mx={2}>수정</Button>
+                  <Button mx={2} onClick={async () => {
+                    const delResult = await delOrder({ variables: { seatId: seatData.seat.id } });
+                    console.log(delResult);
+                    if (!delResult.data?.deleteOrder.order) {
+                      console.log("failed to delete order");
+                    }
+                  }} >삭제</Button>
                 </Box>
               </Flex>
             </Box>
@@ -77,4 +90,4 @@ const Mypage: React.FC<MypageProps> = ({ }) => {
   return <Layout>{content}</Layout>
 }
 
-export default withUrqlClient(createUrqlClient, { ssr: false })(Mypage);
+export default Mypage;

@@ -1,0 +1,6 @@
+mutation DeleteOrder($seatId: Int!){
+  deleteOrder (seatId: $seatId) {
+    errors {field message}
+    order {...RegularOrder}
+  }
+}

@@ -1,20 +1,30 @@
-import React from "react";
-import { Formik, Form } from "formik";
 import { Box, Button } from "@chakra-ui/core";
-import { Wrapper } from "../components/Wrapper";
-import { InputField } from "../components/InputField";
-import { useLoginMutation } from '../generated/graphql';
-import { toErrorMap } from "../utils/toErrorMap";
+import { Form, Formik } from "formik";
 import { useRouter } from 'next/router';
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import React from "react";
+import { InputField } from "../components/InputField";
 import { Layout } from "../components/Layout";
+import { Wrapper } from "../components/Wrapper";
+import { useLoginMutation, MeQuery, MeDocument } from '../generated/graphql';
+import { toErrorMap } from "../utils/toErrorMap";
 
 interface loginProps { }
 
 const Login: React.FC<loginProps> = ({ }) => {
   const router = useRouter();
-  const [, login] = useLoginMutation();
+  const [login] = useLoginMutation({
+    update: (cache, { data }) => {
+      if (data?.login.order) {
+        cache.writeQuery<MeQuery>({
+          query: MeDocument,
+          data: {
+            __typename: "Query",
+            me: data.login.order,
+          },
+        });
+      }
+    }
+  });
   return (
     <Layout>
       <Wrapper variant="small">
@@ -29,7 +39,7 @@ const Login: React.FC<loginProps> = ({ }) => {
               ...values,
               seatId: parseInt(values.seatId)
             };
-            const response = await login({ args });
+            const response = await login({ variables: { args } });
             if (response.data?.login.errors) {
               setErrors(toErrorMap(response.data.login.errors));
             } else if (response.data?.login.order) {
@@ -76,4 +86,4 @@ const Login: React.FC<loginProps> = ({ }) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Login);
+export default Login;
