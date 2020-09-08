@@ -37,12 +37,14 @@ interface NavBarLinkProps {
   name: string;
   key: string;
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
-}
+};
 
 export const NavBarLink: React.FC<NavBarLinkProps> = ({ href, name, key, onClick }) => {
   return (
-    <li key={key} >
-      <NextLink href={href}><a onClick={onClick ? onClick : undefined}>{name}</a></NextLink>
+    <li key={key}>
+      <NextLink href={href}>
+        <a onClick={onClick ? onClick : undefined}>{name}</a>
+      </NextLink>
     </li>
   );
-}
+};
