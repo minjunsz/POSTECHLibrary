@@ -54,4 +54,21 @@ export class SeatConditionResolver {
       .execute();
     return await SeatCondition.findOne(seatConditionResult.identifiers[0].id);
   }
+
+  @Mutation(() => SeatCondition)
+  @UseMiddleware(isAuth)
+  async updateSeatCondition(
+    @Arg('conditions') conditions: ConditionInput,
+    @Ctx() _: MyContext
+  ): Promise<SeatCondition | undefined> {
+    // TODO: check whether this user is owner of this seat or not
+    await getConnection()
+      .createQueryBuilder()
+      .update(SeatCondition)
+      .set(conditions)
+      .where("seatId = :seatId", { seatId: conditions.seatId })
+      .execute();
+
+    return await SeatCondition.findOne({ where: { seatId: conditions.seatId } });
+  }
 }

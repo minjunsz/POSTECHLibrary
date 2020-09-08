@@ -1,0 +1,5 @@
+mutation CreateSeatCondition($conditions: ConditionInput!) {
+  createSeatCondition(conditions:$conditions) {
+    ...RegularSeatCondition
+  }
+}

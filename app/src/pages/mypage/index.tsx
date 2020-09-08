@@ -1,9 +1,10 @@
 import { Box, Button, Flex } from '@chakra-ui/core';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { Layout } from '../components/Layout';
-import { PlotPoints } from '../components/PlotPoints/PlotPoints';
-import { useDeleteOrderMutation, useMeQuery, useSeatQuery } from '../generated/graphql';
+import { Layout } from '../../components/Layout';
+import { PlotPoints } from '../../components/PlotPoints/PlotPoints';
+import { useDeleteOrderMutation, useMeQuery, useSeatQuery } from '../../generated/graphql';
+import NextLink from "next/link";
 
 interface MypageProps { }
 
@@ -71,7 +72,9 @@ const Mypage: React.FC<MypageProps> = ({ }) => {
                   기타: {seatData.seat.seatCondition?.description}
                 </Box>
                 <Box ml="auto">
-                  <Button mx={2}>수정</Button>
+                  <NextLink href="/mypage/edit">
+                    <Button mx={2}>수정</Button>
+                  </NextLink>
                   <Button mx={2} onClick={async () => {
                     const delResult = await delOrder({ variables: { seatId: seatData.seat.id } });
                     console.log(delResult);

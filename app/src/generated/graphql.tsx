@@ -96,6 +96,7 @@ export type Mutation = {
   createOrder: OrderResponse;
   deleteOrder: OrderResponse;
   createSeatCondition: SeatCondition;
+  updateSeatCondition: SeatCondition;
 };
 
 
@@ -120,6 +121,11 @@ export type MutationDeleteOrderArgs = {
 
 
 export type MutationCreateSeatConditionArgs = {
+  conditions: ConditionInput;
+};
+
+
+export type MutationUpdateSeatConditionArgs = {
   conditions: ConditionInput;
 };
 
@@ -177,6 +183,19 @@ export type RegularSeatFragment = (
 export type RegularSeatConditionFragment = (
   { __typename?: 'SeatCondition' }
   & Pick<SeatCondition, 'id' | 'status' | 'description' | 'seatId'>
+);
+
+export type CreateSeatConditionMutationVariables = Exact<{
+  conditions: ConditionInput;
+}>;
+
+
+export type CreateSeatConditionMutation = (
+  { __typename?: 'Mutation' }
+  & { createSeatCondition: (
+    { __typename?: 'SeatCondition' }
+    & RegularSeatConditionFragment
+  ) }
 );
 
 export type DeleteOrderMutationVariables = Exact<{
@@ -241,6 +260,19 @@ export type CreateOrderMutation = (
       { __typename?: 'Order' }
       & RegularOrderFragment
     )> }
+  ) }
+);
+
+export type UpdateSeatConditionMutationVariables = Exact<{
+  conditions: ConditionInput;
+}>;
+
+
+export type UpdateSeatConditionMutation = (
+  { __typename?: 'Mutation' }
+  & { updateSeatCondition: (
+    { __typename?: 'SeatCondition' }
+    & RegularSeatConditionFragment
   ) }
 );
 
@@ -339,6 +371,38 @@ export const RegularSeatConditionFragmentDoc = gql`
   seatId
 }
     `;
+export const CreateSeatConditionDocument = gql`
+    mutation CreateSeatCondition($conditions: ConditionInput!) {
+  createSeatCondition(conditions: $conditions) {
+    ...RegularSeatCondition
+  }
+}
+    ${RegularSeatConditionFragmentDoc}`;
+export type CreateSeatConditionMutationFn = Apollo.MutationFunction<CreateSeatConditionMutation, CreateSeatConditionMutationVariables>;
+
+/**
+ * __useCreateSeatConditionMutation__
+ *
+ * To run a mutation, you first call `useCreateSeatConditionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSeatConditionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSeatConditionMutation, { data, loading, error }] = useCreateSeatConditionMutation({
+ *   variables: {
+ *      conditions: // value for 'conditions'
+ *   },
+ * });
+ */
+export function useCreateSeatConditionMutation(baseOptions?: Apollo.MutationHookOptions<CreateSeatConditionMutation, CreateSeatConditionMutationVariables>) {
+        return Apollo.useMutation<CreateSeatConditionMutation, CreateSeatConditionMutationVariables>(CreateSeatConditionDocument, baseOptions);
+      }
+export type CreateSeatConditionMutationHookResult = ReturnType<typeof useCreateSeatConditionMutation>;
+export type CreateSeatConditionMutationResult = Apollo.MutationResult<CreateSeatConditionMutation>;
+export type CreateSeatConditionMutationOptions = Apollo.BaseMutationOptions<CreateSeatConditionMutation, CreateSeatConditionMutationVariables>;
 export const DeleteOrderDocument = gql`
     mutation DeleteOrder($seatId: Int!) {
   deleteOrder(seatId: $seatId) {
@@ -482,6 +546,38 @@ export function useCreateOrderMutation(baseOptions?: Apollo.MutationHookOptions<
 export type CreateOrderMutationHookResult = ReturnType<typeof useCreateOrderMutation>;
 export type CreateOrderMutationResult = Apollo.MutationResult<CreateOrderMutation>;
 export type CreateOrderMutationOptions = Apollo.BaseMutationOptions<CreateOrderMutation, CreateOrderMutationVariables>;
+export const UpdateSeatConditionDocument = gql`
+    mutation UpdateSeatCondition($conditions: ConditionInput!) {
+  updateSeatCondition(conditions: $conditions) {
+    ...RegularSeatCondition
+  }
+}
+    ${RegularSeatConditionFragmentDoc}`;
+export type UpdateSeatConditionMutationFn = Apollo.MutationFunction<UpdateSeatConditionMutation, UpdateSeatConditionMutationVariables>;
+
+/**
+ * __useUpdateSeatConditionMutation__
+ *
+ * To run a mutation, you first call `useUpdateSeatConditionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSeatConditionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSeatConditionMutation, { data, loading, error }] = useUpdateSeatConditionMutation({
+ *   variables: {
+ *      conditions: // value for 'conditions'
+ *   },
+ * });
+ */
+export function useUpdateSeatConditionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSeatConditionMutation, UpdateSeatConditionMutationVariables>) {
+        return Apollo.useMutation<UpdateSeatConditionMutation, UpdateSeatConditionMutationVariables>(UpdateSeatConditionDocument, baseOptions);
+      }
+export type UpdateSeatConditionMutationHookResult = ReturnType<typeof useUpdateSeatConditionMutation>;
+export type UpdateSeatConditionMutationResult = Apollo.MutationResult<UpdateSeatConditionMutation>;
+export type UpdateSeatConditionMutationOptions = Apollo.BaseMutationOptions<UpdateSeatConditionMutation, UpdateSeatConditionMutationVariables>;
 export const MeDocument = gql`
     query Me {
   me {

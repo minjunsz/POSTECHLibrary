@@ -1,0 +1,5 @@
+mutation UpdateSeatCondition($conditions: ConditionInput!) {
+  updateSeatCondition(conditions:$conditions) {
+    ...RegularSeatCondition
+  }
+}
