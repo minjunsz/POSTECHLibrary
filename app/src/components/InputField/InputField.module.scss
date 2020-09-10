@@ -1,4 +1,4 @@
-$lightBlue: #5fa8d3;
+@import '../../colors';
 
 .formControl {
   .animatedInput {
@@ -33,7 +33,7 @@ $lightBlue: #5fa8d3;
         bottom: -1px;
         height: 100%;
         width: 100%;
-        border-bottom: 3px solid $lightBlue;
+        border-bottom: 3px solid $inputFocusColor;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
       }
@@ -51,7 +51,7 @@ $lightBlue: #5fa8d3;
       .labelContent{
         transform: translateY(-120%);
         font-size: .8em;
-        color: $lightBlue;
+        color: $inputFocusColor;
       }
       
       &::after {
