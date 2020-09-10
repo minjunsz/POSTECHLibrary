@@ -2,7 +2,7 @@ import { Box, Button } from "@chakra-ui/core";
 import { Form, Formik } from "formik";
 import { useRouter } from 'next/router';
 import React from "react";
-import { InputField } from "../components/InputField";
+import { InputField } from "../components/InputField/InputField";
 import { Layout } from "../components/Layout";
 import { Wrapper } from "../components/Wrapper";
 import { useLoginMutation, MeQuery, MeDocument } from '../generated/graphql';
@@ -28,59 +28,58 @@ const Login: React.FC<loginProps> = ({ }) => {
   return (
     <Layout>
       <Wrapper variant="small">
-        <Formik
-          initialValues={{
-            seatId: "1",
-            seatPassword: "1",
-            password: "1234",
-          }}
-          onSubmit={async (values, { setErrors }) => {
-            const args = {
-              ...values,
-              seatId: parseInt(values.seatId)
-            };
-            const response = await login({ variables: { args } });
-            if (response.data?.login.errors) {
-              setErrors(toErrorMap(response.data.login.errors));
-            } else if (response.data?.login.order) {
-              router.push('/mypage');
-            }
-          }}
-        >
-          {({ isSubmitting }) => (
-            <Form>
-              <InputField
-                name="seatId"
-                placeholder="enter seat id"
-                label="seat id"
-              />
-              <Box mt={4}>
+        <Box w="fit-content" mx="auto">
+          <Formik
+            initialValues={{
+              seatId: "",
+              seatPassword: "",
+              password: "",
+            }}
+            onSubmit={async (values, { setErrors }) => {
+              const args = {
+                ...values,
+                seatId: parseInt(values.seatId)
+              };
+              const response = await login({ variables: { args } });
+              if (response.data?.login.errors) {
+                setErrors(toErrorMap(response.data.login.errors));
+              } else if (response.data?.login.order) {
+                router.push('/mypage');
+              }
+            }}
+          >
+            {({ isSubmitting }) => (
+              <Form>
                 <InputField
-                  name="seatPassword"
-                  placeholder="enter seat password"
-                  label="seat password"
-                  type='password'
+                  name="seatId"
+                  label="seat id"
                 />
-              </Box>
-              <Box mt={4}>
-                <InputField
-                  name="password"
-                  placeholder="enter user password"
-                  label="user password"
-                  type='password'
-                />
-              </Box>
-              <Button
-                mt={4}
-                type="submit"
-                isLoading={isSubmitting}
-                variantColor="teal"
-              >
-                login
+                <Box mt={2}>
+                  <InputField
+                    name="seatPassword"
+                    label="seat password"
+                    type='password'
+                  />
+                </Box>
+                <Box mt={2}>
+                  <InputField
+                    name="password"
+                    label="user password"
+                    type='password'
+                  />
+                </Box>
+                <Button
+                  mt={2}
+                  type="submit"
+                  isLoading={isSubmitting}
+                  variantColor="teal"
+                >
+                  login
             </Button>
-            </Form>
-          )}
-        </Formik>
+              </Form>
+            )}
+          </Formik>
+        </Box>
       </Wrapper>
     </Layout>
   );

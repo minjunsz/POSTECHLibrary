@@ -21,7 +21,7 @@ install-app:
 install-server:
 	docker-compose run --rm server "npm install"
 
-install: install-server
+install: install-server install-app
 
 
 into-app:
