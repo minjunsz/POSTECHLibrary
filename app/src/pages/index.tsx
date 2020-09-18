@@ -1,38 +1,22 @@
-import { Accordion, AccordionHeader, AccordionIcon, AccordionItem, AccordionPanel, Box, Stack, Text } from '@chakra-ui/core';
+import { useLazyQuery } from '@apollo/client';
+import { Box } from '@chakra-ui/core';
+import { Field, Form, Formik } from 'formik';
+import { Button } from '../components/Button/Button';
 import { Layout } from '../components/Layout';
 import { PlotPoints } from '../components/PlotPoints/PlotPoints';
-import { RegularSeatConditionFragment, useSeatsQuery } from '../generated/graphql';
+import { SelectOption, SelectWrapper } from '../components/Select/SelectComponents';
+import { SeatsDocument, SeatsQuery, SeatsQueryVariables, SeatType } from '../generated/graphql';
+import styles from "./index.module.scss";
 
 const Index = () => {
-  const { data: seatsData, loading: seatsLoading } = useSeatsQuery({
-    variables: {
-      limit: 10,
-      cursor: null,
-      floor: null
-    },
-    ssr: false,
-    fetchPolicy: "no-cache",
-    pollInterval: 500
-  });
+  const [getSeats, { data: seatsData, loading: seatsLoading }] = useLazyQuery<SeatsQuery, SeatsQueryVariables>(SeatsDocument);
 
-  if (seatsLoading) { return <Layout><div>Loading Seats...</div></Layout>; }
-  if (!seatsData) { return <Layout><div>Failed to Fetch Data</div></Layout>; }
-
-  const renderSeatCondition = (seatCondition: RegularSeatConditionFragment | null | undefined) => {
-    if (!seatCondition) { return <div>No Seat Condition Available</div> }
-    else {
-      return (
-        <Stack spacing={1}>
-          <Text fontSize='sm'>Seat id: {seatCondition.seatId}</Text>
-          <Text fontSize='sm'>Status: {seatCondition.status}</Text>
-          <Text fontSize='sm'>Description: {seatCondition.description}</Text>
-        </Stack>)
-    }
-  }
-
-  return (
-    <Layout>
-      <Box mx='auto' maxW="400px"> {/* TODO: add library map as background image */}
+  let renderedResult: JSX.Element = <></>;
+  if (seatsLoading) { renderedResult = <div className={styles.centerText}>Loading Seats...</div>; }
+  else if (!seatsData) { renderedResult = <div className={styles.centerText}>No Data Loaded</div>; }
+  else {
+    renderedResult = (
+      <Box mx='auto'> {/* TODO: add library map as background image */}
         <PlotPoints
           coords={seatsData.seats.map((seat) => [seat.xpos, seat.ypos])}
           boxSize="75%"
@@ -41,21 +25,52 @@ const Index = () => {
           dotColor={seatsData.seats.map((seat) => !seat.order ? "green.300" : "red.300")}
           hoverData={seatsData.seats.map((seat) => seat.seatCondition)}
         ></PlotPoints>
-      </Box>
-      <Accordion allowMultiple={true} >
-        {seatsData.seats.map(seat => (
-          <AccordionItem key={seat.id}>
-            <AccordionHeader>
-              <Box flex="1" textAlign="left">
-                Seat: {seat.floor} floor, {seat.id}
-              </Box>
-              <AccordionIcon />
-            </AccordionHeader>
-            <AccordionPanel pb={4}>
-              {renderSeatCondition(seat.seatCondition)}
-            </AccordionPanel>
-          </AccordionItem>))}
-      </Accordion>
+      </Box>);
+  }
+
+  return (
+    <Layout>
+      <section className={styles.responsiveGridSection}>
+        <Formik
+          initialValues={{
+            floor: "5",
+            needOutlet: false,
+            seatType: Array<SeatType>()
+          }}
+          onSubmit={(values) => {
+            const parsedValues = {
+              ...values,
+              floor: parseInt(values.floor)
+            };
+            getSeats({ variables: parsedValues });
+          }}
+        >
+          {() => (
+            <Form>
+              <SelectWrapper name="floor" label="층을 선택하세요"  >
+                <SelectOption optionContent="5층" value={5}></SelectOption>
+                <SelectOption optionContent="4층" value={4}></SelectOption>
+                <SelectOption optionContent="3층" value={3}></SelectOption>
+              </SelectWrapper>
+              <label htmlFor="needOutlet">
+                <Field type="checkbox" name="needOutlet" id="needOutlet" />
+                콘센트 필요
+              </label>
+              <div id="checkbox-group">자리 종류 선택</div>
+              <div role="group" aria-labelledby="checkbox-group" className={styles.multiCheckbox} >
+                {Object.keys(SeatType).map((key) => (
+                  <label key={key}>
+                    <Field type="checkbox" name="seatType" value={(SeatType as any)[key]} className={styles.addXMargin} />
+                    {key}
+                  </label>
+                ))}
+              </div>
+              <Button label="검색하기" type='submit' />
+            </Form>
+          )}
+        </Formik>
+        <Box w="100%">{renderedResult}</Box>
+      </section>
     </Layout>);
 }
 

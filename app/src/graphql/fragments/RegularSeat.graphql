@@ -3,5 +3,6 @@ fragment RegularSeat on Seat {
     floor
     xpos
     ypos
+    seatType
     hasOutlet
 }

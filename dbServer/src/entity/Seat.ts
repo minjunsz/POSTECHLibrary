@@ -45,7 +45,7 @@ export class Seat extends BaseEntity {
 
     @Field(() => SeatType)
     @Column({ type: "enum", enum: SeatType })
-    status: SeatType;
+    seatType: SeatType;
 
     @Field()
     @Column()

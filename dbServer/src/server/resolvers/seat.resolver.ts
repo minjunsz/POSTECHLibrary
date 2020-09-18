@@ -23,24 +23,19 @@ class SeatInput {
 export class SeatResolver {
   @Query(() => [Seat])
   async seats(
-    @Arg('limit', () => Int) limit: number,
-    @Arg('floor', () => Int, { nullable: true }) floor: number | null,
-    @Arg('cursor', () => Int, { nullable: true }) cursor: number | null
+    @Arg('floor', () => Int!) floor: number,
+    @Arg('needOutlet') needOutlet: boolean,
+    @Arg('seatType', () => [SeatType]) seatType: SeatType[],
   ): Promise<Seat[]> {
-    const realLimit = Math.min(50, limit);
     const qb = getConnection()
       .getRepository(Seat)
       .createQueryBuilder('seats')
       .leftJoinAndSelect("seats.seatCondition", "seatCondition")
       .leftJoinAndSelect("seats.order", "order")
       .orderBy('seats.id')
-      .take(realLimit)
-    if (floor) {
-      qb.where('floor = :floor', { floor });
-    }
-    if (cursor) {
-      floor ? qb.andWhere('seats.id >= :cursor', { cursor }) : qb.where('seats.id >= :cursor', { cursor });
-    }
+      .where('floor = :floor', { floor });
+    needOutlet ? qb.andWhere('seats.hasOutlet = true') : null;
+    !!seatType.length ? qb.andWhere('seats.seatType IN (:seatType)', { seatType }) : null;
 
     return qb.getMany();
   }

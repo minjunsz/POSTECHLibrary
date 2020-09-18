@@ -23,9 +23,9 @@ export type Query = {
 
 
 export type QuerySeatsArgs = {
-  cursor?: Maybe<Scalars['Int']>;
-  floor?: Maybe<Scalars['Int']>;
-  limit: Scalars['Int'];
+  seatType: Array<SeatType>;
+  needOutlet: Scalars['Boolean'];
+  floor: Scalars['Int'];
 };
 
 
@@ -38,24 +38,24 @@ export type QuerySeatConditionArgs = {
   seatId: Scalars['Int'];
 };
 
-export type Seat = {
-  __typename?: 'Seat';
-  id: Scalars['Int'];
-  floor: Scalars['Int'];
-  xpos: Scalars['Float'];
-  ypos: Scalars['Float'];
-  status: SeatType;
-  hasOutlet: Scalars['Boolean'];
-  order?: Maybe<Order>;
-  seatCondition?: Maybe<SeatCondition>;
-};
-
 /** Type of Seats */
 export enum SeatType {
   A = 'A',
   B = 'B',
   C = 'C'
 }
+
+export type Seat = {
+  __typename?: 'Seat';
+  id: Scalars['Int'];
+  floor: Scalars['Int'];
+  xpos: Scalars['Float'];
+  ypos: Scalars['Float'];
+  seatType: SeatType;
+  hasOutlet: Scalars['Boolean'];
+  order?: Maybe<Order>;
+  seatCondition?: Maybe<SeatCondition>;
+};
 
 export type Order = {
   __typename?: 'Order';
@@ -177,7 +177,7 @@ export type RegularOrderFragment = (
 
 export type RegularSeatFragment = (
   { __typename?: 'Seat' }
-  & Pick<Seat, 'id' | 'floor' | 'xpos' | 'ypos' | 'hasOutlet'>
+  & Pick<Seat, 'id' | 'floor' | 'xpos' | 'ypos' | 'seatType' | 'hasOutlet'>
 );
 
 export type RegularSeatConditionFragment = (
@@ -325,9 +325,9 @@ export type SeatConditionQuery = (
 );
 
 export type SeatsQueryVariables = Exact<{
-  limit: Scalars['Int'];
-  floor?: Maybe<Scalars['Int']>;
-  cursor?: Maybe<Scalars['Int']>;
+  floor: Scalars['Int'];
+  needOutlet: Scalars['Boolean'];
+  seatType: Array<SeatType>;
 }>;
 
 
@@ -360,6 +360,7 @@ export const RegularSeatFragmentDoc = gql`
   floor
   xpos
   ypos
+  seatType
   hasOutlet
 }
     `;
@@ -687,8 +688,8 @@ export type SeatConditionQueryHookResult = ReturnType<typeof useSeatConditionQue
 export type SeatConditionLazyQueryHookResult = ReturnType<typeof useSeatConditionLazyQuery>;
 export type SeatConditionQueryResult = Apollo.QueryResult<SeatConditionQuery, SeatConditionQueryVariables>;
 export const SeatsDocument = gql`
-    query Seats($limit: Int!, $floor: Int, $cursor: Int) {
-  seats(limit: $limit, floor: $floor, cursor: $cursor) {
+    query Seats($floor: Int!, $needOutlet: Boolean!, $seatType: [SeatType!]!) {
+  seats(floor: $floor, needOutlet: $needOutlet, seatType: $seatType) {
     ...RegularSeat
     order {
       id
@@ -713,9 +714,9 @@ ${RegularSeatConditionFragmentDoc}`;
  * @example
  * const { data, loading, error } = useSeatsQuery({
  *   variables: {
- *      limit: // value for 'limit'
  *      floor: // value for 'floor'
- *      cursor: // value for 'cursor'
+ *      needOutlet: // value for 'needOutlet'
+ *      seatType: // value for 'seatType'
  *   },
  * });
  */

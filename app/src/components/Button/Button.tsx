@@ -6,6 +6,7 @@ export interface ButtonProps {
   backgroundColor?: string;
   size?: 'small' | 'medium' | 'large';
   label: string;
+  type?: "button" | "submit" | "reset" | undefined;
   onClick?: () => void;
 }
 
@@ -17,6 +18,7 @@ export const Button: React.FC<ButtonProps> = ({
   size = 'medium',
   backgroundColor,
   label,
+  type = 'button',
   ...props
 }) => {
   const mode: string = primary ? styles.storybookButtonPrimary : styles.storybookButtonSecondary;
@@ -24,7 +26,7 @@ export const Button: React.FC<ButtonProps> = ({
     size === 'medium' ? styles.storybookButtonMedium : styles.storybookButtonLarge)
   return (
     <button
-      type="button"
+      type={type}
       className={[
         `${styles.storybookButton}`, sizeMode, mode].join(' ')}
       style={{ backgroundColor }}
