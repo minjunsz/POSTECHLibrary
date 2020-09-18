@@ -35,13 +35,13 @@ export const NavBarWrapper: React.FC<NavBarWrapperProps> = ({ title, titleHref, 
 interface NavBarLinkProps {
   href: string;
   name: string;
-  key: string;
+  keyStr: string;
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
 };
 
-export const NavBarLink: React.FC<NavBarLinkProps> = ({ href, name, key, onClick }) => {
+export const NavBarLink: React.FC<NavBarLinkProps> = ({ href, name, keyStr, onClick }) => {
   return (
-    <li key={key}>
+    <li key={keyStr}>
       <NextLink href={href}>
         <a onClick={onClick ? onClick : undefined}>{name}</a>
       </NextLink>

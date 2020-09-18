@@ -10,8 +10,8 @@ export default {
 export const sampleNavbar = () => {
   return (
     <NavBarWrapper title="LOGO" titleHref="#" >
-      <NavBarLink href="#" key="home" name="HOME" />
-      <NavBarLink href="#" key="about" name="ABOUT" />
-      <NavBarLink href="#" key="contact" name="CONTACT" />
+      <NavBarLink href="#" keyStr="home" name="HOME" />
+      <NavBarLink href="#" keyStr="about" name="ABOUT" />
+      <NavBarLink href="#" keyStr="contact" name="CONTACT" />
     </NavBarWrapper>);
 }

@@ -21,13 +21,13 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
   if (!meLoading) {
     if (!meData?.me) {
       menus = (<>
-        <NavBarLink href="/login" name="Login" key="login"></NavBarLink>
-        <NavBarLink href="/register" name="Register" key="register"></NavBarLink>
+        <NavBarLink href="/login" name="Login" keyStr="login"></NavBarLink>
+        <NavBarLink href="/register" name="Register" keyStr="register"></NavBarLink>
       </>);
     } else {
       menus = (<>
-        <NavBarLink href="/mypage" name="My Page" key="mypage"></NavBarLink>
-        <NavBarLink href="#" name="Logout" key="logout"
+        <NavBarLink href="/mypage" name="My Page" keyStr="mypage"></NavBarLink>
+        <NavBarLink href="#" name="Logout" keyStr="logout"
           onClick={() => { logout(); }}></NavBarLink>
       </>);
     }
@@ -39,7 +39,7 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
         ? <Spinner m="1rem"></Spinner>
         : (<>
           {meData?.me ? <Text p="1rem">Seat {meData?.me?.seatId} is selected</Text> : null}
-          <NavBarLink href="/" name="Home" key="home"></NavBarLink>
+          <NavBarLink href="/" name="Home" keyStr="home"></NavBarLink>
           {menus}
         </>)}
     </NavBarWrapper>
